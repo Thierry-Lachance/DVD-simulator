@@ -1,10 +1,38 @@
-cmake_minimum_required(VERSION 4.0)
-project(DVD_simulator)
+cmake_minimum_required(VERSION 3.19)
+project(DVD-simulator LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 20)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets LinguistTools)
 
-add_executable(DVD_simulator main.cpp)
+qt_standard_project_setup()
 
-find_package(Qt6 REQUIRED COMPONENTS Core Widgets Gui)
-target_link_libraries(DVD_simulator PRIVATE Qt6::Core Qt6::Widgets Qt6::Gui)
+qt_add_executable(DVD-simulator
+    WIN32 MACOSX_BUNDLE
+    main.cpp
+    dvdsimulator.cpp
+    dvdsimulator.h
+    dvdsimulator.ui
+)
 
+qt_add_translations(
+    TARGETS DVD-simulator
+    TS_FILES DVD-simulator_en_CA.ts
+)
+
+target_link_libraries(DVD-simulator
+    PRIVATE
+        Qt::Core
+        Qt::Widgets
+)
+
+install(TARGETS DVD-simulator
+    BUNDLE  DESTINATION .
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+
+qt_generate_deploy_app_script(
+    TARGET DVD-simulator
+    OUTPUT_SCRIPT deploy_script
+    NO_UNSUPPORTED_PLATFORM_ERROR
+)
+install(SCRIPT ${deploy_script})

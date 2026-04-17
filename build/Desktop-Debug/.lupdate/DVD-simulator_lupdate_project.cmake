@@ -1,0 +1,11 @@
+set(lupdate_project_file "/home/lxs/DVD-simulator/CMakeLists.txt")
+set(lupdate_translations "/home/lxs/DVD-simulator/DVD-simulator_en_CA.ts")
+set(lupdate_include_paths "")
+set(lupdate_sources "")
+set(lupdate_subproject_count 1)
+
+set(lupdate_subproject1_source_dir "/home/lxs/DVD-simulator")
+set(lupdate_subproject1_include_paths "/home/lxs/DVD-simulator/build/Desktop-Debug/DVD-simulator_autogen/include;/usr/include/qt6/QtCore;/usr/include/qt6;/usr/lib/qt6/mkspecs/linux-g++;/usr/include/qt6;/usr/include/qt6/QtWidgets;/usr/include/qt6;/usr/include/qt6/QtGui;/usr/include/qt6;/usr/include;/usr/include;/usr/include")
+set(lupdate_subproject1_sources "/home/lxs/DVD-simulator/build/Desktop-Debug/DVD-simulator_autogen/mocs_compilation.cpp;main.cpp;dvdsimulator.cpp;dvdsimulator.h;dvdsimulator.ui;/home/lxs/DVD-simulator/build/Desktop-Debug/.qt/rcc/DVD-simulator_translations.qrc;/home/lxs/DVD-simulator/build/Desktop-Debug/DVD-simulator_en_CA.qm;/home/lxs/DVD-simulator/build/Desktop-Debug/.qt/rcc/qrc_DVD-simulator_translations.cpp;/home/lxs/DVD-simulator/build/Desktop-Debug/DVD-simulator_autogen/include/ui_dvdsimulator.h;/home/lxs/DVD-simulator/build/Desktop-Debug/DVD-simulator_autogen/timestamp;/home/lxs/DVD-simulator/build/Desktop-Debug/DVD-simulator_en_CA.qm.rule;/home/lxs/DVD-simulator/build/Desktop-Debug/.qt/rcc/qrc_DVD-simulator_translations.cpp.rule;/home/lxs/DVD-simulator/build/Desktop-Debug/DVD-simulator_autogen/timestamp.rule")
+set(lupdate_subproject1_excluded "")
+set(lupdate_subproject1_autogen_dir "/home/lxs/DVD-simulator/build/Desktop-Debug/DVD-simulator_autogen")

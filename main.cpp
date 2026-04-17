@@ -1,11 +1,23 @@
-#include <iostream>
-#include <QtWidgets/QtWidgets>
+#include "dvdsimulator.h"
 
-int main(int argc, char *argv[]) {
-    QApplication app(argc, argv);
-    QWidget window;
-    window.resize(1,1);
-    window.show();
-    window.setWindowTitle(QApplication::translate("toplevel", "Top-level widget"));
-    return app.exec();
+#include <QApplication>
+#include <QLocale>
+#include <QTranslator>
+
+int main(int argc, char *argv[])
+{
+    QApplication a(argc, argv);
+
+    QTranslator translator;
+    const QStringList uiLanguages = QLocale::system().uiLanguages();
+    for (const QString &locale : uiLanguages) {
+        const QString baseName = "DVD-simulator_" + QLocale(locale).name();
+        if (translator.load(":/i18n/" + baseName)) {
+            a.installTranslator(&translator);
+            break;
+        }
+    }
+    DVDSimulator w;
+    w.show();
+    return QCoreApplication::exec();
 }

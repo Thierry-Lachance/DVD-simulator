@@ -1,0 +1,7 @@
+# Hashes of file build rules.
+1f1d5a59e2af8e06958ccecabf1819f9 .qt/rcc/qrc_DVD-simulator_translations.cpp
+f8380c9a22dd5ab2b232bad2a7779e0a CMakeFiles/DVD-simulator_autogen
+f8380c9a22dd5ab2b232bad2a7779e0a CMakeFiles/DVD-simulator_lrelease
+0a35b91993207434666c8949d60a4f89 CMakeFiles/DVD-simulator_lupdate
+e57c8af8d21d7e9e80bb48484f4addad DVD-simulator_autogen/timestamp
+5a18b7c93a02e787e064fd87508e27c2 DVD-simulator_en_CA.qm
