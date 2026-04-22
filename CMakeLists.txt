@@ -8,14 +8,6 @@ qt_standard_project_setup()
 qt_add_executable(DVD-simulator
     WIN32 MACOSX_BUNDLE
     main.cpp
-    dvdsimulator.cpp
-    dvdsimulator.h
-    dvdsimulator.ui
-)
-
-qt_add_translations(
-    TARGETS DVD-simulator
-    TS_FILES DVD-simulator_en_CA.ts
 )
 
 target_link_libraries(DVD-simulator
