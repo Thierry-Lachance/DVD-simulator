@@ -1,19 +1,20 @@
 cmake_minimum_required(VERSION 3.19)
 project(DVD-simulator LANGUAGES CXX)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets LinguistTools UiTools)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets LinguistTools UiTools Charts)
 
 qt_standard_project_setup()
 
-qt_add_executable(DVD-simulator wow.ui
-    main.cpp
-)
+qt_add_executable(DVD-simulator main.cpp
+        App.cpp
+        App.h)
 
 target_link_libraries(DVD-simulator
     PRIVATE
         Qt::Core
         Qt::Widgets
         Qt::UiTools
+        Qt::Charts
 )
 
 install(TARGETS DVD-simulator

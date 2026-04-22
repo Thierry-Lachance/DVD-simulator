@@ -1,31 +1,32 @@
 
 #include <iostream>
 #include <QtWidgets>
+#include <QtCharts>
+
+#include "App.h"
 
 using namespace std;
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
-    QHBoxLayout *layout = new QHBoxLayout();
-
     QWidget window;
-    QMenuBar *bar = new QMenuBar();
-    bar->addMenu("This does absolutely nothing ...");
-    layout->addWidget(bar);
 
+    App app("Test",100,100,&a,&window);
+    QHBoxLayout *layout = new QHBoxLayout();
+    app.addLayout("mainLayout",layout);
+    app.setActiveLayout("mainLayout");
+
+    QMenuBar *bar = new QMenuBar();
+    app.addWidget("menuBar",bar);
+    app.addWidgetToLayout("menuBar","mainLayout");
 
     QPushButton *button = new QPushButton(&window);
     button->setText("Exit Application...");
+    app.addWidget("exitButton",button);
+    app.addWidgetToLayout("exitButton","mainLayout");
     QObject::connect(button,&QPushButton::clicked,[&]() {
         cout << "You clicked the exit button..." << endl;
         QApplication::quit();
     });
 
-    layout->addWidget(button);
-    window.setLayout(layout);
-    window.resize(300,200);
-    window.setWindowTitle("Fenetre test");
-
-    window.show();
-
-    return QApplication::exec();
+    return app.runA*pp();
 }
