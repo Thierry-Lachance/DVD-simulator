@@ -17,6 +17,7 @@ App::App(string appName, int appWidth, int appHeight, QApplication *app) {
     _mainWindow = new QStackedWidget;
     _mainWindow->setWindowTitle(appName.c_str());
     _mainWindow->resize(appWidth, appHeight);
+
 }
 
 QStackedWidget *App::getMainWindow() {
