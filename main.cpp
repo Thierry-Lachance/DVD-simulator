@@ -1,20 +1,31 @@
+
 #include <iostream>
-#include <QApplication>
-#include <QWidget>
-#include <QMainWindow>
-#include <QUi>
+#include <QtWidgets>
 
-int main(int argc, char *argv[])
-{
+using namespace std;
+int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
+    QHBoxLayout *layout = new QHBoxLayout();
 
-    QMainWindow window;
-    window.setGeometry(1,1,12,12);
-    QWidget widget;
-    window.setCentralWidget(&widget);
-    window.setWindowTitle("A");
+    QWidget window;
+    QMenuBar *bar = new QMenuBar();
+    bar->addMenu("This does absolutely nothing ...");
+    layout->addWidget(bar);
 
+
+    QPushButton *button = new QPushButton(&window);
+    button->setText("Exit Application...");
+    QObject::connect(button,&QPushButton::clicked,[&]() {
+        cout << "You clicked the exit button..." << endl;
+        QApplication::quit();
+    });
+
+    layout->addWidget(button);
+    window.setLayout(layout);
+    window.resize(300,200);
+    window.setWindowTitle("Fenetre test");
 
     window.show();
-    return QCoreApplication::exec();
+
+    return QApplication::exec();
 }
