@@ -4,50 +4,55 @@
 
 #include "App.h"
 
+#include <qmainwindow.h>
+#include <qstackedwidget.h>
 #include <QWidget>
 
 using namespace std;
-App::App(std::string appName, int appWidth, int appHeight, QApplication *app, QWidget *mainWindow) {
+App::App(string appName, int appWidth, int appHeight, QApplication *app) {
     _appName = appName;
     _appWidth = appWidth;
     _appHeight = appHeight;
     _app = app;
-    _mainWindow = mainWindow;
-    _mainWindow->setWindowTitle(_appName.data());
-    _mainWindow->resize(_appWidth, _appHeight);
+    _mainWindow = new QStackedWidget;
+    _mainWindow->setWindowTitle(appName.c_str());
+    _mainWindow->resize(appWidth, appHeight);
 }
 
-QWidget * App::getMainWindow() {
+QStackedWidget *App::getMainWindow() {
     return _mainWindow;
 }
 
-QWidget * App::getWidget(std::string widgetName) {
-    return _widgets->at(widgetName);
+QWidget * App::widget(string widgetName) {
+    return _widgets.at(widgetName);
 }
 
 int App::getExitStatus() {
     return _exitStatus;
 }
 
-void App::setAppName(std::string appName) {
+void App::setAppName(string appName) {
     _appName = appName;
 }
 
-void App::addLayout(std::string layoutName, QLayout *layout) {
-    _layouts->at(layoutName) = layout;
+void App::addLayout(string layoutName, QHBoxLayout *layout) {
+    QWidget *widget = new QWidget;
+    widget->setLayout(layout);
+    _mainWindow->addWidget(widget);
+    _layouts.insert({layoutName,_mainWindow->count()});
 }
 
-void App::setActiveLayout(std::string layoutName) {
-    _activeLayout = layoutName;
-    _mainWindow->setLayout(_layouts->at(layoutName));
+void App::setActiveLayout(string layoutName) {
+    _activeLayout = _layouts.at(layoutName);
+    _mainWindow->setCurrentIndex(_activeLayout);
 }
 
 void App::addWidget(std::string widgetName, QWidget *widget) {
-    _widgets->at(widgetName) = widget;
+    _widgets.insert({widgetName,widget});
 }
 
-void App::addWidgetToLayout(std::string widgetName, std::string layoutName) {
-    _layouts->at(layoutName)->addWidget(_widgets->at(widgetName));
+void App::addWidgetToLayout(string widgetName, string layoutName) {
+    _mainWindow->widget(_layouts.at(layoutName))->layout()->addWidget(_widgets.at(widgetName));
 }
 
 void App::exit() const {
@@ -55,5 +60,6 @@ void App::exit() const {
 }
 
 int App::runApp() {
-    return _app->exec();
+    _mainWindow->show();
+    return QCoreApplication::exec();
 }
