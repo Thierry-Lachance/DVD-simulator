@@ -4,9 +4,12 @@
 
 #include "App.h"
 
+#include <iostream>
 #include <qmainwindow.h>
 #include <qstackedwidget.h>
 #include <QWidget>
+
+#include "CustomWindow.h"
 
 using namespace std;
 
@@ -16,14 +19,22 @@ App::App(string appName, int appWidth, int appHeight, QApplication *app) {
     _appHeight = appHeight;
     _app = app;
     _layout = new QVBoxLayout();
-    _mainWindow = new QWidget();
+    _mainWindow = new CustomWindow();
     _mainWindow->setLayout(_layout);
     _mainWindow->setWindowTitle(appName.c_str());
     _mainWindow->resize(appWidth, appHeight);
 }
 
-QWidget *App::getMainWindow() {
+CustomWindow *App::getMainWindow() {
     return _mainWindow;
+}
+
+std::string App::getActiveLayout() {
+    return _activeLayout;
+}
+
+std::set<int> App::getPressedKeys() {
+    return _mainWindow->getKeysPressed();
 }
 
 QWidget * App::widget(string widgetName) {
@@ -46,23 +57,34 @@ void App::setAppName(string appName) {
     _appName = appName;
 }
 
+void App::setLayoutFullscreen(std::string layoutName, bool isFullscreen) {
+    _layoutsFullscreen[layoutName] = isFullscreen;
+}
+
 void App::addLayout(string layoutName) {
     vector<string> widgetVector;
     _layoutsWidgets[layoutName] = widgetVector;
     _layoutsSize[layoutName] = {_appWidth,_appHeight};
+    _layoutsFullscreen[layoutName] = false;
 }
 
 void App::addLayout(std::string layoutName, vector<int> layoutSize) {
     vector<string> vector;
     _layoutsWidgets[layoutName] = vector;
     _layoutsSize[layoutName] = layoutSize;
+    _layoutsFullscreen[layoutName] = false;
 }
 
 void App::setActiveLayout(string layoutName) {
     clearLayout();
-    _mainWindow->resize(_layoutsSize[layoutName][0],_layoutsSize[layoutName][1]);
-    _mainWindow->setMinimumSize(_layoutsSize[layoutName][0],_layoutsSize[layoutName][1]);
-    _mainWindow->setMaximumSize(_layoutsSize[layoutName][0],_layoutsSize[layoutName][1]);
+    if (!_layoutsFullscreen[layoutName]) {
+        _mainWindow->resize(_layoutsSize[layoutName][0],_layoutsSize[layoutName][1]);
+        _mainWindow->setMinimumSize(_layoutsSize[layoutName][0],_layoutsSize[layoutName][1]);
+        _mainWindow->setMaximumSize(_layoutsSize[layoutName][0],_layoutsSize[layoutName][1]);
+        _mainWindow->show();
+    } else {
+        _mainWindow->showFullScreen();
+    }
     _layout->setMenuBar(_layoutsBars[layoutName]);
     for (const std::string& widgetName: _layoutsWidgets[layoutName]) {
         _layout->addWidget(_widgets[widgetName]);
@@ -93,6 +115,10 @@ void App::clearLayout() {
                 _widgets[widgetName]->setParent(nullptr);
             }
         }
+        if (_layoutsBars[_activeLayout]) {
+            _layoutsBars[_activeLayout]->setParent(nullptr);
+        }
+        _mainWindow->showNormal();
         _layout->setMenuBar(nullptr);
     }
 }
@@ -103,5 +129,7 @@ void App::exit() const {
 
 int App::runApp() {
     _mainWindow->show();
-    return QCoreApplication::exec();
+    _exitStatus = QCoreApplication::exec();
 }
+
+

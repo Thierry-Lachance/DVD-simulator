@@ -12,10 +12,12 @@
 #include <QtCharts>
 
 
+class CustomWindow;
+
 class App {
 private:
     QApplication *_app;
-    QWidget *_mainWindow;
+    CustomWindow *_mainWindow;
     QVBoxLayout *_layout;
     std::string _appName;
     int _appWidth;
@@ -25,6 +27,7 @@ private:
     std::map<std::string, QMenuBar*> _layoutsBars;
     std::map<std::string, QWidget*> _widgets;
     std::map<std::string, std::vector<int>> _layoutsSize;
+    std::map<std::string, bool> _layoutsFullscreen;
     int _exitStatus;
 public:
     App(std::string appName, int appWidth, int appHeight, QApplication *app);
@@ -35,7 +38,9 @@ public:
     void hide();
 
     int getExitStatus();
-    QWidget *getMainWindow();
+    CustomWindow *getMainWindow();
+    std::string getActiveLayout();
+    std::set<int> getPressedKeys();
 
     void addLayout(std::string layoutName);
     void addLayout(std::string layoutName, std::vector<int> layoutSize);
@@ -45,6 +50,7 @@ public:
     void setLayoutMenuBar(std::string layoutName, QMenuBar *bar);
     void setActiveLayout(std::string layoutName);
     void setAppName(std::string appName);
+    void setLayoutFullscreen(std::string layoutName, bool isFullscreen);
 
     void clearLayout();
 
@@ -52,7 +58,5 @@ public:
 
     int runApp();
 };
-
-
 
 #endif //DVD_SIMULATOR_APP_H

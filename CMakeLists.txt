@@ -7,7 +7,9 @@ qt_standard_project_setup()
 
 qt_add_executable(DVD-simulator main.cpp
         App.cpp
-        App.h)
+        App.h
+        CustomWindow.cpp
+        CustomWindow.h)
 
 target_link_libraries(DVD-simulator
     PRIVATE
