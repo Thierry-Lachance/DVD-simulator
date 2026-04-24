@@ -9,7 +9,9 @@ qt_add_executable(DVD-simulator main.cpp
         App.cpp
         App.h
         CustomWindow.cpp
-        CustomWindow.h)
+        CustomWindow.h
+        Canvas.cpp
+        Canvas.h)
 
 target_link_libraries(DVD-simulator
     PRIVATE

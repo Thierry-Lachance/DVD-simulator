@@ -3,17 +3,20 @@
 #include <QtCharts>
 #include <thread>
 #include "App.h"
+#include "Canvas.h"
 #include "CustomWindow.h"
 
 using namespace std;
 
-void keyHandlerFunction(App *app) {
+void keyHandlerFunction(App *app, Canvas *canvas) {
     std::set<int> keys;
     cout << "Key handler thread is running" << endl;
     while (true) {
         keys = app->getPressedKeys();
         if (keys.count(Qt::Key_Escape) && app->getActiveLayout() == "simulation") {
             app->setActiveLayout("mainLayout");
+            cout << "Ending simulation ... " << endl;
+            canvas->hideCanvas();
         }
     }
 }
@@ -25,8 +28,6 @@ int main(int argc, char *argv[]) {
     int screen_height = a.primaryScreen()->size().height();
 
     App app("DVD-SIMULATOR",600,400,&a);
-
-    thread keyThread(keyHandlerFunction, &app);
 
     app.addLayout("mainLayout");
     app.addLayout("statsLayout");
@@ -54,13 +55,18 @@ int main(int argc, char *argv[]) {
     app.setLayoutMenuBar("mainLayout",bar);
     app.setLayoutMenuBar("statsLayout",bar);
 
+    Canvas *canvas = new Canvas(screen_width,screen_height, true);
+    canvas->fill(0,0,0);
+
     QPushButton *runButton = new QPushButton();
-   runButton->setText("Run Simulation");
-   QObject::connect(runButton,&QPushButton::clicked,[&]() {
-       cout << "You clicked the run simulation button..." << endl;
-       app.setActiveLayout("simulation");
-       app.getMainWindow()->grabKeyboard();
-   });
+    runButton->setText("Run Simulation");
+    QObject::connect(runButton,&QPushButton::clicked,[&]() {
+        cout << "You clicked the run simulation button..." << endl;
+        app.setActiveLayout("simulation");
+        app.getMainWindow()->grabKeyboard();
+        canvas->showCanvas();
+    });
+
 
     QDoubleSpinBox *xVelSpinBox = new QDoubleSpinBox;
     QLabel *xVelLabel = new QLabel;
@@ -116,7 +122,9 @@ int main(int argc, char *argv[]) {
     app.addWidgetToLayout("saveCheckbox","mainLayout");
     app.addWidgetToLayout("runSimulationButton","mainLayout");
 
-    app.setActiveLayout("statsLayout");
+    app.setActiveLayout("mainLayout");
+
+    thread keyThread([&]{ keyHandlerFunction(&app, canvas); });
     app.runApp();
     keyThread.detach();
     return app.getExitStatus();
