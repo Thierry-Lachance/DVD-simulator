@@ -4,6 +4,7 @@ project(DVD-simulator LANGUAGES CXX)
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets LinguistTools UiTools Charts)
 
 qt_standard_project_setup()
+add_compile_definitions(QT_NO_DEBUG_OUTPUT)
 
 qt_add_executable(DVD-simulator main.cpp
         App.cpp
@@ -11,7 +12,9 @@ qt_add_executable(DVD-simulator main.cpp
         CustomWindow.cpp
         CustomWindow.h
         Canvas.cpp
-        Canvas.h)
+        Canvas.h
+        DVD.cpp
+        DVD.h)
 
 target_link_libraries(DVD-simulator
     PRIVATE

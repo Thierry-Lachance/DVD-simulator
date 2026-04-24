@@ -13,10 +13,16 @@ void keyHandlerFunction(App *app, Canvas *canvas) {
     cout << "Key handler thread is running" << endl;
     while (true) {
         keys = app->getPressedKeys();
-        if (keys.count(Qt::Key_Escape) && app->getActiveLayout() == "simulation") {
-            app->setActiveLayout("mainLayout");
-            cout << "Ending simulation ... " << endl;
-            canvas->hideCanvas();
+        if (app->getActiveLayout() == "simulation") {
+            app->getMainWindow()->grabKeyboard();
+            canvas->fill(255,255,255);
+            canvas->drawText("Test",255,255,255,0,20);
+            canvas->update();
+            if (keys.count(Qt::Key_Escape)) {
+                canvas->hideCanvas();
+                app->setActiveLayout("mainLayout");
+                cout << "Ending simulation ... " << endl;
+            }
         }
     }
 }
@@ -52,6 +58,7 @@ int main(int argc, char *argv[]) {
     bar->addAction(mainMenuAction);
     bar->addAction(statsAction);
 
+
     app.setLayoutMenuBar("mainLayout",bar);
     app.setLayoutMenuBar("statsLayout",bar);
 
@@ -63,7 +70,6 @@ int main(int argc, char *argv[]) {
     QObject::connect(runButton,&QPushButton::clicked,[&]() {
         cout << "You clicked the run simulation button..." << endl;
         app.setActiveLayout("simulation");
-        app.getMainWindow()->grabKeyboard();
         canvas->showCanvas();
     });
 
