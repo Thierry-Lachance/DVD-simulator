@@ -20,12 +20,14 @@ int main(int argc, char *argv[]) {
     QAction *statsAction = new QAction();
     statsAction->setText("Stats");
     QObject::connect(statsAction, &QAction::triggered,[&]() {
+        cout << "Switiching to stats page" << endl;
         app.setActiveLayout("statsLayout");
     });
 
     QAction *mainMenuAction = new QAction();
     mainMenuAction->setText("Main Menu");
     QObject::connect(mainMenuAction, &QAction::triggered,[&]() {
+        cout << "Switiching to main page" << endl;
         app.setActiveLayout("mainLayout");
     });
 
@@ -47,6 +49,6 @@ int main(int argc, char *argv[]) {
     app.addWidgetToLayout("menuBar","mainLayout");
     app.addWidgetToLayout("menuBar","statsLayout");
 
-    app.setActiveLayout("mainLayout");
+    app.setActiveLayout("statsLayout");
     return app.runApp();
 }

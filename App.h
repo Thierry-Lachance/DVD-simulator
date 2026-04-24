@@ -19,6 +19,8 @@ private:
     int _appHeight;
     int _activeLayout;
     std::map<std::string, int> _layouts;
+    std::map<std::string, std::vector<std::string>> _layoutsWidgets;
+    std::map<std::string, QLayout*> _layoutsStorage;
     std::map<std::string, QWidget*> _widgets;
     int _exitStatus;
 public:

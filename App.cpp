@@ -40,12 +40,18 @@ void App::addLayout(string layoutName, QHBoxLayout *layout) {
     QWidget *widget = new QWidget;
     widget->setLayout(layout);
     _mainWindow->addWidget(widget);
+    _layoutsStorage[layoutName] = layout;
+    vector<string> vector;
+    _layoutsWidgets[layoutName] = vector;
     _layouts.insert({layoutName,_mainWindow->count()});
 }
 
 void App::setActiveLayout(string layoutName) {
     _activeLayout = _layouts.at(layoutName);
-    _mainWindow->setCurrentIndex(_activeLayout);
+    for (const std::string& widgetName: _layoutsWidgets[layoutName]) {
+        _layoutsStorage[layoutName]->addWidget(_widgets[widgetName]);
+    }
+    _mainWindow->setCurrentWidget(_layoutsStorage[layoutName]->parentWidget());
 }
 
 void App::addWidget(std::string widgetName, QWidget *widget) {
@@ -53,7 +59,7 @@ void App::addWidget(std::string widgetName, QWidget *widget) {
 }
 
 void App::addWidgetToLayout(string widgetName, string layoutName) {
-    _mainWindow->widget(_layouts.at(layoutName))->layout()->addWidget(_widgets.at(widgetName));
+    _layoutsWidgets[layoutName].push_back(widgetName);
 }
 
 void App::exit() const {
