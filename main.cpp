@@ -30,6 +30,9 @@ int main(int argc, char *argv[]) {
     QMenuBar *bar = new QMenuBar();
     bar->addAction(statsAction);
     bar->addAction(mainMenuAction);
+    
+    app.setLayoutMenuBar("mainLayout",bar);
+    app.setLayoutMenuBar("statsLayout",bar);
 
     QPushButton *button = new QPushButton();
     button->setText("Exit Application...");
@@ -40,8 +43,7 @@ int main(int argc, char *argv[]) {
 
     app.addWidget("exitButton",button);
 
-    app.setLayoutMenuBar("mainLayout",bar);
-    app.setLayoutMenuBar("statsLayout",bar);
+    app.addWidgetToLayout("exitButton","mainLayout");
 
     app.setActiveLayout("statsLayout");
     return app.runApp();

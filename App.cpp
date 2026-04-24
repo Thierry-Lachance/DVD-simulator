@@ -43,13 +43,13 @@ void App::addLayout(string layoutName) {
 }
 
 void App::setActiveLayout(string layoutName) {
-    for (auto widget: _layout->children()) {
-        widget->setParent(nullptr);
-    }
+    clearLayout();
     _layout->setMenuBar(_layoutsBars[layoutName]);
     for (const std::string& widgetName: _layoutsWidgets[layoutName]) {
         _layout->addWidget(_widgets[widgetName]);
     }
+    _activeLayout = layoutName;
+    _layout->update();
 }
 
 void App::addWidget(std::string widgetName, QWidget *widget) {
@@ -62,6 +62,14 @@ void App::addWidgetToLayout(string widgetName, string layoutName) {
 
 void App::setLayoutMenuBar(std::string layoutName, QMenuBar *bar) {
     _layoutsBars[layoutName] = bar;
+}
+
+void App::clearLayout() {
+    for (std::string widgetName: _layoutsWidgets[_activeLayout]) {
+        _layout->removeWidget(_widgets[widgetName]);
+        _widgets[widgetName]->setParent(nullptr);
+    }
+    _layout->setMenuBar(nullptr);
 }
 
 void App::exit() const {

@@ -20,7 +20,7 @@ private:
     std::string _appName;
     int _appWidth;
     int _appHeight;
-    int _activeLayout;
+    std::string _activeLayout;
     std::map<std::string, std::vector<std::string>> _layoutsWidgets;
     std::map<std::string, QMenuBar*> _layoutsBars;
     std::map<std::string, QWidget*> _widgets;
@@ -28,18 +28,20 @@ private:
 public:
     App(std::string appName, int appWidth, int appHeight, QApplication *app);
 
-    QWidget *getMainWindow();
     QWidget *widget(std::string widgetName);
 
     int getExitStatus();
+    QWidget *getMainWindow();
 
-    void setAppName(std::string appName);
     void addLayout(std::string layoutName);
-    void setActiveLayout(std::string layoutName);
     void addWidget(std::string widgetName, QWidget *widget);
     void addWidgetToLayout(std::string widgetName, std::string layoutName);
 
     void setLayoutMenuBar(std::string layoutName, QMenuBar *bar);
+    void setActiveLayout(std::string layoutName);
+    void setAppName(std::string appName);
+
+    void clearLayout();
 
     void exit() const;
 
