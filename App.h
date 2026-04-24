@@ -8,34 +8,38 @@
 #include <QApplication>
 #include <qstackedwidget.h>
 #include <string>
+#include <QtWidgets>
+#include <QtCharts>
 
 
 class App {
 private:
     QApplication *_app;
-    QStackedWidget *_mainWindow;
+    QWidget *_mainWindow;
+    QHBoxLayout *_layout;
     std::string _appName;
     int _appWidth;
     int _appHeight;
     int _activeLayout;
-    std::map<std::string, int> _layouts;
     std::map<std::string, std::vector<std::string>> _layoutsWidgets;
-    std::map<std::string, QLayout*> _layoutsStorage;
+    std::map<std::string, QMenuBar*> _layoutsBars;
     std::map<std::string, QWidget*> _widgets;
     int _exitStatus;
 public:
     App(std::string appName, int appWidth, int appHeight, QApplication *app);
 
-    QStackedWidget *getMainWindow();
+    QWidget *getMainWindow();
     QWidget *widget(std::string widgetName);
 
     int getExitStatus();
 
     void setAppName(std::string appName);
-    void addLayout(std::string layoutName, QHBoxLayout *layout);
+    void addLayout(std::string layoutName);
     void setActiveLayout(std::string layoutName);
     void addWidget(std::string widgetName, QWidget *widget);
     void addWidgetToLayout(std::string widgetName, std::string layoutName);
+
+    void setLayoutMenuBar(std::string layoutName, QMenuBar *bar);
 
     void exit() const;
 

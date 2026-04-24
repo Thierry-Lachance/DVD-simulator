@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <QtWidgets>
 #include <QtCharts>
@@ -11,11 +10,8 @@ int main(int argc, char *argv[]) {
 
     App app("Test",100,100,&a);
 
-    QHBoxLayout *mainLayout = new QHBoxLayout();
-    app.addLayout("mainLayout",mainLayout);
-
-    QHBoxLayout *statsLayout = new QHBoxLayout();
-    app.addLayout("statsLayout",statsLayout);
+    app.addLayout("mainLayout");
+    app.addLayout("statsLayout");
 
     QAction *statsAction = new QAction();
     statsAction->setText("Stats");
@@ -43,11 +39,9 @@ int main(int argc, char *argv[]) {
     });
 
     app.addWidget("exitButton",button);
-    app.addWidgetToLayout("exitButton","mainLayout");
 
-    app.addWidget("menuBar",bar);
-    app.addWidgetToLayout("menuBar","mainLayout");
-    app.addWidgetToLayout("menuBar","statsLayout");
+    app.setLayoutMenuBar("mainLayout",bar);
+    app.setLayoutMenuBar("statsLayout",bar);
 
     app.setActiveLayout("statsLayout");
     return app.runApp();

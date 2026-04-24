@@ -14,13 +14,14 @@ App::App(string appName, int appWidth, int appHeight, QApplication *app) {
     _appWidth = appWidth;
     _appHeight = appHeight;
     _app = app;
-    _mainWindow = new QStackedWidget;
+    _layout = new QHBoxLayout();
+    _mainWindow = new QWidget();
+    _mainWindow->setLayout(_layout);
     _mainWindow->setWindowTitle(appName.c_str());
     _mainWindow->resize(appWidth, appHeight);
-
 }
 
-QStackedWidget *App::getMainWindow() {
+QWidget *App::getMainWindow() {
     return _mainWindow;
 }
 
@@ -36,22 +37,19 @@ void App::setAppName(string appName) {
     _appName = appName;
 }
 
-void App::addLayout(string layoutName, QHBoxLayout *layout) {
-    QWidget *widget = new QWidget;
-    widget->setLayout(layout);
-    _mainWindow->addWidget(widget);
-    _layoutsStorage[layoutName] = layout;
+void App::addLayout(string layoutName) {
     vector<string> vector;
     _layoutsWidgets[layoutName] = vector;
-    _layouts.insert({layoutName,_mainWindow->count()});
 }
 
 void App::setActiveLayout(string layoutName) {
-    _activeLayout = _layouts.at(layoutName);
-    for (const std::string& widgetName: _layoutsWidgets[layoutName]) {
-        _layoutsStorage[layoutName]->addWidget(_widgets[widgetName]);
+    for (auto widget: _layout->children()) {
+        widget->setParent(nullptr);
     }
-    _mainWindow->setCurrentWidget(_layoutsStorage[layoutName]->parentWidget());
+    _layout->setMenuBar(_layoutsBars[layoutName]);
+    for (const std::string& widgetName: _layoutsWidgets[layoutName]) {
+        _layout->addWidget(_widgets[widgetName]);
+    }
 }
 
 void App::addWidget(std::string widgetName, QWidget *widget) {
@@ -60,6 +58,10 @@ void App::addWidget(std::string widgetName, QWidget *widget) {
 
 void App::addWidgetToLayout(string widgetName, string layoutName) {
     _layoutsWidgets[layoutName].push_back(widgetName);
+}
+
+void App::setLayoutMenuBar(std::string layoutName, QMenuBar *bar) {
+    _layoutsBars[layoutName] = bar;
 }
 
 void App::exit() const {
