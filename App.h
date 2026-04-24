@@ -16,7 +16,7 @@ class App {
 private:
     QApplication *_app;
     QWidget *_mainWindow;
-    QHBoxLayout *_layout;
+    QVBoxLayout *_layout;
     std::string _appName;
     int _appWidth;
     int _appHeight;
@@ -24,16 +24,21 @@ private:
     std::map<std::string, std::vector<std::string>> _layoutsWidgets;
     std::map<std::string, QMenuBar*> _layoutsBars;
     std::map<std::string, QWidget*> _widgets;
+    std::map<std::string, std::vector<int>> _layoutsSize;
     int _exitStatus;
 public:
     App(std::string appName, int appWidth, int appHeight, QApplication *app);
 
     QWidget *widget(std::string widgetName);
 
+    void show();
+    void hide();
+
     int getExitStatus();
     QWidget *getMainWindow();
 
     void addLayout(std::string layoutName);
+    void addLayout(std::string layoutName, std::vector<int> layoutSize);
     void addWidget(std::string widgetName, QWidget *widget);
     void addWidgetToLayout(std::string widgetName, std::string layoutName);
 
