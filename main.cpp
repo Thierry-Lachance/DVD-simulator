@@ -2,6 +2,7 @@
 #include <QtWidgets>
 #include <QtCharts>
 #include <thread>
+#include <string>
 #include "App.h"
 #include "Canvas.h"
 #include "CustomWindow.h"
@@ -58,7 +59,6 @@ int main(int argc, char *argv[]) {
     bar->addAction(mainMenuAction);
     bar->addAction(statsAction);
 
-
     app.setLayoutMenuBar("mainLayout",bar);
     app.setLayoutMenuBar("statsLayout",bar);
 
@@ -72,7 +72,6 @@ int main(int argc, char *argv[]) {
         app.setActiveLayout("simulation");
         canvas->showCanvas();
     });
-
 
     QDoubleSpinBox *xVelSpinBox = new QDoubleSpinBox;
     QLabel *xVelLabel = new QLabel;
