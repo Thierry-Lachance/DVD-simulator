@@ -2,6 +2,7 @@
 #include <QtWidgets>
 #include <QtCharts>
 #include <thread>
+#include <chrono>
 #include <string>
 #include "App.h"
 #include "Canvas.h"
@@ -16,13 +17,28 @@ void keyHandlerFunction(App *app, Canvas *canvas) {
         keys = app->getPressedKeys();
         if (app->getActiveLayout() == "simulation") {
             app->getMainWindow()->grabKeyboard();
-            canvas->fill(255,255,255);
-            canvas->drawText("Test",255,255,255,0,20);
-            canvas->update();
             if (keys.count(Qt::Key_Escape)) {
                 canvas->hideCanvas();
                 app->setActiveLayout("mainLayout");
                 cout << "Ending simulation ... " << endl;
+            }
+        }
+    }
+}
+
+void simHandlerFunction(App *app, Canvas *canvas) {
+    while (true) {
+        if (app->getActiveLayout() == "simulation") {
+            auto current = chrono::high_resolution_clock::now();
+            auto previous = chrono::high_resolution_clock::now();
+            chrono::duration<double> dt;
+            while (app->getActiveLayout() == "simulation") {
+                current = chrono::high_resolution_clock::now();
+                canvas->fill(255,255,255);
+                canvas->drawText("Test :" + to_string(dt.count()),255,255,255,0,20);
+                canvas->update();
+                previous = current;
+                dt = current - previous;
             }
         }
     }
@@ -130,7 +146,9 @@ int main(int argc, char *argv[]) {
     app.setActiveLayout("mainLayout");
 
     thread keyThread([&]{ keyHandlerFunction(&app, canvas); });
+    thread simThread([&]{ simHandlerFunction(&app, canvas); });
     app.runApp();
     keyThread.detach();
+    simThread.detach();
     return app.getExitStatus();
 }
