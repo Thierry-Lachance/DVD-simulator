@@ -14,7 +14,9 @@ qt_add_executable(DVD-simulator main.cpp
         Canvas.cpp
         Canvas.h
         DVD.cpp
-        DVD.h)
+        DVD.h
+        StatsTracker.cpp
+        StatsTracker.h)
 
 target_link_libraries(DVD-simulator
     PRIVATE

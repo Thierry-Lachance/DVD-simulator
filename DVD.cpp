@@ -5,7 +5,7 @@
 #include "DVD.h"
 
 
-DVD::DVD(QPixmap image, double yVel, double xVel, int x, int y) {
+DVD::DVD(QPixmap image, double yVel, double xVel, int x, int y, int screen_width, int screen_height, StatsTracker *stats) {
     _image = image;
     _width = image.width();
     _height = image.height();
@@ -13,6 +13,9 @@ DVD::DVD(QPixmap image, double yVel, double xVel, int x, int y) {
     _yVel = yVel;
     _x = x;
     _y = y;
+    _stats = stats;
+    _screen_height = screen_height;
+    _screen_width = screen_width;
 }
 
 QPixmap DVD::getImage() const {
