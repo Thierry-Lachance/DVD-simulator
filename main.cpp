@@ -9,8 +9,26 @@
 #include "App.h"
 #include "Canvas.h"
 #include "CustomWindow.h"
+#include "DVD.h"
+#include "Standard_DVD.h"
 
 using namespace std;
+
+struct DVD_PARAMS {
+    string simulationName;
+    int screen_width;
+    int screen_height;
+    QPixmap image;
+    vector<int> pos;
+    vector<double> vel;
+    /* DVDTypes :
+     * 0 - Standard
+     * 1 - Side Scroller DVD
+     * 2 - Climber DVD
+    */
+    int DVDType;
+    bool saveCSV;
+};
 
 void keyHandlerFunction(App *app, Canvas *canvas) {
     std::set<int> keys;
@@ -28,17 +46,21 @@ void keyHandlerFunction(App *app, Canvas *canvas) {
     }
 }
 
-void simHandlerFunction(App *app, Canvas *canvas) {
+void simHandlerFunction(App *app, Canvas *canvas, DVD_PARAMS *dvd_params) {
     while (true) {
         if (app->getActiveLayout() == "simulation") {
             auto t1 = chrono::steady_clock::now();
             auto t2 = chrono::steady_clock::now();
             double dt;
+            StatsTracker stats;
+            if (dvd_params->DVDType == 0) {
+                Standard_DVD dvd(dvd_params->image, dvd_params->vel[0], dvd_params->vel[1], dvd_params->pos[0], dvd_params->pos[1],
+                        dvd_params->screen_width, dvd_params->screen_height, &stats);
+            }
             while (app->getActiveLayout() == "simulation") {
                 dt = std::chrono::duration<double>(chrono::duration_cast<chrono::milliseconds>(t2 - t1)).count();
                 t1 = chrono::steady_clock::now();
                 canvas->clear(false);
-                canvas->drawText("FPS: " + to_string(dt),255,255,255,0,20);
                 canvas->update();
                 t2 = chrono::steady_clock::now();
             }
@@ -46,24 +68,16 @@ void simHandlerFunction(App *app, Canvas *canvas) {
     }
 }
 
-struct DVD_PARAMS {
-    string simulationName;
-    vector<int> pos;
-    vector<double> vel;
-    int DVDType;
-    /* DVDTypes :
-     * 0 - Standard
-     * 1 - Side Scroller DVD
-     * 2 - Climber DVD
-    */
-    bool saveCSV;
-};
-
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
 
     int screen_width = QApplication::primaryScreen()->size().width();
     int screen_height = QApplication::primaryScreen()->size().height();
+
+    DVD_PARAMS dvd_params;
+    //dvd_params.image = QPixmap("../dvd-image.png");
+    dvd_params.screen_height = screen_height;
+    dvd_params.screen_width = screen_width;
 
     App app("DVD-SIMULATOR",600,400,&a);
 
@@ -97,14 +111,6 @@ int main(int argc, char *argv[]) {
     Canvas *canvas = new Canvas(screen_width,screen_height, true);
     canvas->fill(0,0,0);
 
-    QPushButton *runButton = new QPushButton();
-    runButton->setText("Run Simulation");
-    QObject::connect(runButton,&QPushButton::clicked,[&]() {
-        cout << "You clicked the run simulation button..." << endl;
-        app.setActiveLayout("simulation");
-        canvas->showCanvas();
-    });
-
     QDoubleSpinBox *xVelSpinBox = new QDoubleSpinBox;
     QLabel *xVelLabel = new QLabel;
     QDoubleSpinBox *yVelSpinBox = new QDoubleSpinBox;
@@ -137,6 +143,22 @@ int main(int argc, char *argv[]) {
     saveCheckbox->setChecked(true);
     saveCheckbox->setText("Save stats to .csv ?");
 
+    // TODO: ADDD SIMULATION NAME AND DVD TYPE
+
+    QPushButton *runButton = new QPushButton();
+    runButton->setText("Run Simulation");
+    QObject::connect(runButton,&QPushButton::clicked,[&]() {
+        cout << "You clicked the run simulation button..." << endl;
+        app.setActiveLayout("simulation");
+        canvas->showCanvas();
+        dvd_params.pos[0] = xPosSpinBox->value();
+        dvd_params.pos[1] = yPosSpinBox->value();
+        dvd_params.vel[0] = xVelSpinBox->value();
+        dvd_params.vel[1] = yVelSpinBox->value();
+        dvd_params.saveCSV = saveCheckbox->isChecked();
+        // TODO: ADDD SIMULATION NAME AND DVD TYPE
+    });
+
     app.addWidget("xVelLabel",xVelLabel);
     app.addWidget("xVelSpinBox",xVelSpinBox);
     app.addWidget("yVelLabel",yVelLabel);
@@ -162,7 +184,7 @@ int main(int argc, char *argv[]) {
     app.setActiveLayout("mainLayout");
 
     thread keyThread([&]{ keyHandlerFunction(&app, canvas); });
-    thread simThread([&]{ simHandlerFunction(&app, canvas); });
+    thread simThread([&]{ simHandlerFunction(&app, canvas, &dvd_params); });
     app.runApp();
     keyThread.detach();
     simThread.detach();

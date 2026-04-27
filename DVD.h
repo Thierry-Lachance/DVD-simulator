@@ -22,7 +22,7 @@ private:
     int _y;
     StatsTracker *_stats;
 public:
-    DVD(QPixmap image, double yVel, double xVel, int x, int y, int screen_width, int screen_height, StatsTracker *stats);
+    DVD(QPixmap image, double xVel, double yVel, int x, int y, int screen_width, int screen_height, StatsTracker *stats);
     QPixmap getImage() const;
     virtual void cornerHit() = 0;
 };
