@@ -13,12 +13,14 @@ private:
     int _height;
     bool _isFullscreen;
     QPixmap *_canvas;
-
+    QColor _clearColor;
 public:
     Canvas(int width, int height, bool isFullscreen);
 
     void showCanvas();
     void hideCanvas();
+
+    void setClearColor(int r, int g, int b);
 
     void update();
     void clear(bool update);

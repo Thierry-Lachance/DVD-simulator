@@ -13,6 +13,7 @@ Canvas::Canvas(int width, int height, bool isFullscreen) {
     _canvas->fill();
     this->setPixmap(*_canvas);
     _isFullscreen = isFullscreen;
+    _clearColor = QColor(0,0,0);
     if (isFullscreen) {
         this->setScaledContents(true);
         this->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
@@ -32,13 +33,18 @@ void Canvas::hideCanvas() {
     this->hide();
 }
 
+
+void Canvas::setClearColor(int r, int g, int b) {
+    _clearColor = QColor(r,g,b);
+}
+
 void Canvas::update() {
     this->setPixmap(*_canvas);
 }
 
 void Canvas::clear(bool update) {
     _canvas = new QPixmap(_width,_height);
-    _canvas->fill();
+    _canvas->fill(_clearColor);
     if (update) {
         this->setPixmap(*_canvas);
     }

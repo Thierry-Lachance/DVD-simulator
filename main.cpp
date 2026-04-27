@@ -52,10 +52,18 @@ void simHandlerFunction(App *app, Canvas *canvas, DVD_PARAMS *dvd_params) {
             auto t1 = chrono::steady_clock::now();
             auto t2 = chrono::steady_clock::now();
             double dt;
-            StatsTracker stats;
+            StatsTracker stats();
             if (dvd_params->DVDType == 0) {
-                Standard_DVD dvd(dvd_params->image, dvd_params->vel[0], dvd_params->vel[1], dvd_params->pos[0], dvd_params->pos[1],
-                        dvd_params->screen_width, dvd_params->screen_height, &stats);
+                Standard_DVD dvd(dvd_params->image.copy(), dvd_params->vel.at(0), dvd_params->vel.at(1), dvd_params->pos.at(0),
+                                 dvd_params->pos.at(1), dvd_params->screen_width, dvd_params->screen_height, &stats);
+            } else if (dvd_params->DVDType == 1) {
+                // TODO: IMPLEMENT SIDESCROLLER DVD
+                Standard_DVD dvd(dvd_params->image.copy(), dvd_params->vel.at(0), dvd_params->vel.at(1), dvd_params->pos.at(0),
+                                 dvd_params->pos.at(1), dvd_params->screen_width, dvd_params->screen_height, &stats);
+            } else if (dvd_params->DVDType == 2) {
+                // TODO: IMPLEMENT CLIMBER DVD
+                Standard_DVD dvd(dvd_params->image.copy(), dvd_params->vel.at(0), dvd_params->vel.at(1), dvd_params->pos.at(0),
+                                 dvd_params->pos.at(1), dvd_params->screen_width, dvd_params->screen_height, &stats);
             }
             while (app->getActiveLayout() == "simulation") {
                 dt = std::chrono::duration<double>(chrono::duration_cast<chrono::milliseconds>(t2 - t1)).count();
@@ -151,10 +159,10 @@ int main(int argc, char *argv[]) {
         cout << "You clicked the run simulation button..." << endl;
         app.setActiveLayout("simulation");
         canvas->showCanvas();
-        dvd_params.pos[0] = xPosSpinBox->value();
-        dvd_params.pos[1] = yPosSpinBox->value();
-        dvd_params.vel[0] = xVelSpinBox->value();
-        dvd_params.vel[1] = yVelSpinBox->value();
+        dvd_params.pos.push_back(xPosSpinBox->value());
+        dvd_params.pos.push_back(yPosSpinBox->value());
+        dvd_params.vel.push_back(xVelSpinBox->value());
+        dvd_params.vel.push_back(yVelSpinBox->value());
         dvd_params.saveCSV = saveCheckbox->isChecked();
         // TODO: ADDD SIMULATION NAME AND DVD TYPE
     });

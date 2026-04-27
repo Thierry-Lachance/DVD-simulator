@@ -8,10 +8,9 @@
 
 
 class Standard_DVD : public DVD {
-private:
-
 public:
-    Standard_DVD();
+    Standard_DVD(QPixmap image, double xVel, double yVel, int x, int y, int screen_width, int screen_height, StatsTracker *stats) : DVD(image,xVel,yVel,x,y,screen_width,screen_height,stats) {};
+    void cornerHit() override;
 };
 
 

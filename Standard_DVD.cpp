@@ -3,3 +3,6 @@
 //
 
 #include "Standard_DVD.h"
+
+void Standard_DVD::cornerHit() {
+}
