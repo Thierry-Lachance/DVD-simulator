@@ -56,7 +56,7 @@ public:
 
     void exit() const;
 
-    int runApp();
+    void runApp();
 };
 
 #endif //DVD_SIMULATOR_APP_H

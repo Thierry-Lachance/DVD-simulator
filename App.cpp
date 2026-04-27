@@ -127,7 +127,7 @@ void App::exit() const {
     _app->exit();
 }
 
-int App::runApp() {
+void App::runApp() {
     _mainWindow->show();
     _exitStatus = QCoreApplication::exec();
 }

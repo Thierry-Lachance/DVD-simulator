@@ -12,7 +12,7 @@ private:
     int _width;
     int _height;
     bool _isFullscreen;
-    QPixmap _canvas;
+    QPixmap *_canvas;
 
 public:
     Canvas(int width, int height, bool isFullscreen);
@@ -21,6 +21,7 @@ public:
     void hideCanvas();
 
     void update();
+    void clear(bool update);
 
     void fill(int r, int g, int b);
     void fill(int r, int g, int b, int a);

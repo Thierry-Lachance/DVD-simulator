@@ -4,6 +4,8 @@
 #include <thread>
 #include <chrono>
 #include <string>
+#include <unistd.h>
+
 #include "App.h"
 #include "Canvas.h"
 #include "CustomWindow.h"
@@ -14,9 +16,9 @@ void keyHandlerFunction(App *app, Canvas *canvas) {
     std::set<int> keys;
     cout << "Key handler thread is running" << endl;
     while (true) {
-        keys = app->getPressedKeys();
         if (app->getActiveLayout() == "simulation") {
             app->getMainWindow()->grabKeyboard();
+            keys = app->getPressedKeys();
             if (keys.count(Qt::Key_Escape)) {
                 canvas->hideCanvas();
                 app->setActiveLayout("mainLayout");
@@ -29,32 +31,46 @@ void keyHandlerFunction(App *app, Canvas *canvas) {
 void simHandlerFunction(App *app, Canvas *canvas) {
     while (true) {
         if (app->getActiveLayout() == "simulation") {
-            auto current = chrono::high_resolution_clock::now();
-            auto previous = chrono::high_resolution_clock::now();
-            chrono::duration<double> dt;
+            auto t1 = chrono::steady_clock::now();
+            auto t2 = chrono::steady_clock::now();
+            double dt;
             while (app->getActiveLayout() == "simulation") {
-                current = chrono::high_resolution_clock::now();
-                canvas->fill(255,255,255);
-                canvas->drawText("Test :" + to_string(dt.count()),255,255,255,0,20);
+                dt = std::chrono::duration<double>(chrono::duration_cast<chrono::milliseconds>(t2 - t1)).count();
+                t1 = chrono::steady_clock::now();
+                canvas->clear(false);
+                canvas->drawText("FPS: " + to_string(dt),255,255,255,0,20);
                 canvas->update();
-                previous = current;
-                dt = current - previous;
+                t2 = chrono::steady_clock::now();
             }
         }
     }
 }
 
+struct DVD_PARAMS {
+    string simulationName;
+    vector<int> pos;
+    vector<double> vel;
+    int DVDType;
+    /* DVDTypes :
+     * 0 - Standard
+     * 1 - Side Scroller DVD
+     * 2 - Climber DVD
+    */
+    bool saveCSV;
+};
+
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
 
-    int screen_width = a.primaryScreen()->size().width();
-    int screen_height = a.primaryScreen()->size().height();
+    int screen_width = QApplication::primaryScreen()->size().width();
+    int screen_height = QApplication::primaryScreen()->size().height();
 
     App app("DVD-SIMULATOR",600,400,&a);
 
     app.addLayout("mainLayout");
     app.addLayout("statsLayout");
     app.addLayout("simulation", {screen_width,screen_height});
+    app.setLayoutFullscreen("statsLayout",true);
     app.setLayoutFullscreen("simulation",true);
 
     QAction *statsAction = new QAction();
