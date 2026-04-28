@@ -210,13 +210,16 @@ int main(int argc, char *argv[]) {
             while (getline(input,line)) {
                 if (lidx == 0) {
                     saveCheckbox->setChecked(atoi(line.substr(0,line.find(';')).c_str()));
-                    dvdTypeComboBox->setCurrentIndex(atoi(line.substr(line.find(';')).c_str()));
+                    line.replace(0,line.find(';')+1,"");
+                    dvdTypeComboBox->setCurrentIndex(atoi(line.c_str()));
                 } else if (lidx == 1) {
                     xPosSpinBox->setValue(atoi(line.substr(0,line.find(';')).c_str()));
-                    yPosSpinBox->setValue(atoi(line.substr(line.find(';'),line.rfind(line.back())).c_str()));
+                    line.replace(0,line.find(';')+1,"");
+                    yPosSpinBox->setValue(atoi(line.c_str()));
                 } else if (lidx == 2) {
                     xVelSpinBox->setValue(atof(line.substr(0,line.find(';')).c_str()));
-                    yVelSpinBox->setValue(atof(line.substr(line.find(';'),line.rfind(line.back())).c_str()));
+                    line.replace(0,line.find(';')+1,"");
+                    yVelSpinBox->setValue(atof(line.c_str()));
                 }
                 lidx++;
             }
