@@ -3,6 +3,7 @@
 #include <QtCharts>
 #include <thread>
 #include <chrono>
+#include <fstream>
 #include <string>
 #include <unistd.h>
 
@@ -181,13 +182,47 @@ int main(int argc, char *argv[]) {
     loadButton->setText("Load Simulation Config");
 
     QObject::connect(saveButton,&QPushButton::clicked,[&]() {
-        string file = QFileDialog::getSaveFileName(app.getMainWindow(),"Save File").toStdString();
-
+        dvd_params.pos.push_back(xPosSpinBox->value());
+        dvd_params.pos.push_back(yPosSpinBox->value());
+        dvd_params.vel.push_back(xVelSpinBox->value());
+        dvd_params.vel.push_back(yVelSpinBox->value());
+        dvd_params.saveCSV = saveCheckbox->isChecked();
+        dvd_params.simulationName = simNameEdit->text().toStdString();
+        dvd_params.DVDType = dvdTypeComboBox->currentData().toInt();
+        ofstream output("../"+dvd_params.simulationName+".csv");
+        if (output.is_open()) {
+            output << dvd_params.saveCSV << ";" << dvd_params.DVDType << "\n";
+            output << dvd_params.pos.at(0) << ";" << dvd_params.pos.at(1) << "\n";
+            output << dvd_params.vel.at(0) << ";" << dvd_params.vel.at(1) << "\n";
+            output.close();
+        } else {
+            cout << "An error happened while saving the simulation config..." << endl;
+        }
     });
 
     QObject::connect(loadButton,&QPushButton::clicked,[&]() {
-        string file = QFileDialog::getOpenFileName(app.getMainWindow(),"Load File").toStdString();
-
+        string file = QFileDialog::getOpenFileName(app.getMainWindow(), "Load File", QApplication::applicationDirPath(),"CSV Files (*.csv)").toStdString();
+        ifstream input(file);
+        if (input.is_open()) {
+            simNameEdit->setText(QString(file.substr(file.find_last_of('/')+1).c_str()).replace(".csv",""));
+            string line;
+            int lidx = 0;
+            while (getline(input,line)) {
+                if (lidx == 0) {
+                    saveCheckbox->setChecked(atoi(line.substr(0,line.find(';')).c_str()));
+                    dvdTypeComboBox->setCurrentIndex(atoi(line.substr(line.find(';')).c_str()));
+                } else if (lidx == 1) {
+                    xPosSpinBox->setValue(atoi(line.substr(0,line.find(';')).c_str()));
+                    yPosSpinBox->setValue(atoi(line.substr(line.find(';'),line.rfind(line.back())).c_str()));
+                } else if (lidx == 2) {
+                    xVelSpinBox->setValue(atof(line.substr(0,line.find(';')).c_str()));
+                    yVelSpinBox->setValue(atof(line.substr(line.find(';'),line.rfind(line.back())).c_str()));
+                }
+                lidx++;
+            }
+        } else {
+            cout << "An error happened while loading the simulation config..." << endl;
+        }
     });
 
     QObject::connect(runButton,&QPushButton::clicked,[&]() {
