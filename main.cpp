@@ -52,7 +52,7 @@ void simHandlerFunction(App *app, Canvas *canvas, DVD_PARAMS *dvd_params) {
             auto t1 = chrono::steady_clock::now();
             auto t2 = chrono::steady_clock::now();
             double dt;
-            StatsTracker stats();
+            StatsTracker stats;
             if (dvd_params->DVDType == 0) {
                 Standard_DVD dvd(dvd_params->image.copy(), dvd_params->vel.at(0), dvd_params->vel.at(1), dvd_params->pos.at(0),
                                  dvd_params->pos.at(1), dvd_params->screen_width, dvd_params->screen_height, &stats);
@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
     dvd_params.screen_height = screen_height;
     dvd_params.screen_width = screen_width;
 
-    App app("DVD-SIMULATOR",600,400,&a);
+    App app("DVD-SIMULATOR",600,500,&a);
 
     app.addLayout("mainLayout");
     app.addLayout("statsLayout");
@@ -151,10 +151,45 @@ int main(int argc, char *argv[]) {
     saveCheckbox->setChecked(true);
     saveCheckbox->setText("Save stats to .csv ?");
 
-    // TODO: ADDD SIMULATION NAME AND DVD TYPE
+
+    QLabel *simNameLabel = new QLabel;
+    simNameLabel->setText("Simulation Name:");
+
+    QLineEdit *simNameEdit = new QLineEdit;
+    simNameEdit->setPlaceholderText("SIMULATION-NAME");
+
+    QLabel *dvdTypeLabel = new QLabel;
+    dvdTypeLabel->setText("Set DVD type:");
+
+    QComboBox *dvdTypeComboBox = new QComboBox;
+    dvdTypeComboBox->setFixedHeight(25);
+    dvdTypeComboBox->addItem("0 - Standard DVD",0);
+    dvdTypeComboBox->addItem("1 - Side Scroller DVD",1);
+    dvdTypeComboBox->addItem("2 - Climber DVD",2);
+
+    QLabel *padding = new QLabel;
+    padding->setText(" ");
+    padding->setFixedHeight(5);
 
     QPushButton *runButton = new QPushButton();
     runButton->setText("Run Simulation");
+
+    QPushButton *saveButton = new QPushButton();
+    saveButton->setText("Save Simulation Config");
+
+    QPushButton *loadButton = new QPushButton();
+    loadButton->setText("Load Simulation Config");
+
+    QObject::connect(saveButton,&QPushButton::clicked,[&]() {
+        string file = QFileDialog::getSaveFileName(app.getMainWindow(),"Save File").toStdString();
+
+    });
+
+    QObject::connect(loadButton,&QPushButton::clicked,[&]() {
+        string file = QFileDialog::getOpenFileName(app.getMainWindow(),"Load File").toStdString();
+
+    });
+
     QObject::connect(runButton,&QPushButton::clicked,[&]() {
         cout << "You clicked the run simulation button..." << endl;
         app.setActiveLayout("simulation");
@@ -164,9 +199,15 @@ int main(int argc, char *argv[]) {
         dvd_params.vel.push_back(xVelSpinBox->value());
         dvd_params.vel.push_back(yVelSpinBox->value());
         dvd_params.saveCSV = saveCheckbox->isChecked();
-        // TODO: ADDD SIMULATION NAME AND DVD TYPE
+        dvd_params.simulationName = simNameEdit->text().toStdString();
+        dvd_params.DVDType = dvdTypeComboBox->currentData().toInt();
     });
 
+    app.addWidget("padding",padding);
+    app.addWidget("dvdTypeLabel",dvdTypeLabel);
+    app.addWidget("dvdTypeComboBox",dvdTypeComboBox);
+    app.addWidget("simNameLabel",simNameLabel);
+    app.addWidget("simNameEdit",simNameEdit);
     app.addWidget("xVelLabel",xVelLabel);
     app.addWidget("xVelSpinBox",xVelSpinBox);
     app.addWidget("yVelLabel",yVelLabel);
@@ -177,7 +218,13 @@ int main(int argc, char *argv[]) {
     app.addWidget("yPosSpinBox",yPosSpinBox);
     app.addWidget("saveCheckbox",saveCheckbox);
     app.addWidget("runSimulationButton",runButton);
+    app.addWidget("saveConfigButton",saveButton);
+    app.addWidget("loadConfigButton",loadButton);
 
+    app.addWidgetToLayout("dvdTypeLabel","mainLayout");
+    app.addWidgetToLayout("dvdTypeComboBox","mainLayout");
+    app.addWidgetToLayout("simNameLabel","mainLayout");
+    app.addWidgetToLayout("simNameEdit","mainLayout");
     app.addWidgetToLayout("xPosLabel","mainLayout");
     app.addWidgetToLayout("xPosSpinBox","mainLayout");
     app.addWidgetToLayout("yPosLabel","mainLayout");
@@ -187,6 +234,8 @@ int main(int argc, char *argv[]) {
     app.addWidgetToLayout("yVelLabel","mainLayout");
     app.addWidgetToLayout("yVelSpinBox","mainLayout");
     app.addWidgetToLayout("saveCheckbox","mainLayout");
+    app.addWidgetToLayout("saveConfigButton","mainLayout");
+    app.addWidgetToLayout("loadConfigButton","mainLayout");
     app.addWidgetToLayout("runSimulationButton","mainLayout");
 
     app.setActiveLayout("mainLayout");
