@@ -9,16 +9,18 @@
 
 class StatsTracker {
     private:
-        int[] wallHit;
-        int[] cornerHit;
+        int wallHit[4] = {};
+        int cornerHit[4] = {};
     public:
         StatsTracker();
         void logWallHit(int wallNumber);
-        int getTotalNumberOfHit();
-        int getNumberOfHitForWall(int wallNumber);
+
+        int getTotalNumberOfHit() const;
+        int getNumberOfHitForWall(int wallNumber) const;
 
         void logCornerHit(int cornerNumber);
-        int getNumberOfHitForCorner(int cornerNumber);
+        int getNumberOfHitForCorner(int cornerNumber) const;
+        int getTotalNumberOfCornerHits() const;
 
 
 };
