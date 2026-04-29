@@ -8,22 +8,26 @@
 #include <qlabel.h>
 
 class Canvas : public QLabel {
+    Q_OBJECT
 private:
     int _width;
     int _height;
     bool _isFullscreen;
     QPixmap *_canvas;
     QColor _clearColor;
+public slots:
+    void renderFrame(QPixmap frame);
 public:
     Canvas(int width, int height, bool isFullscreen);
+
+    QPixmap* getCanvas();
 
     void showCanvas();
     void hideCanvas();
 
     void setClearColor(int r, int g, int b);
 
-    void update();
-    void clear(bool update);
+    void clear();
 
     void fill(int r, int g, int b);
     void fill(int r, int g, int b, int a);

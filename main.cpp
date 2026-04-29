@@ -19,7 +19,6 @@ void keyHandlerFunction(App *app, Canvas *canvas) {
     cout << "Key handler thread is running" << endl;
     while (true) {
         if (app->getActiveLayout() == "simulation") {
-            app->getMainWindow()->grabKeyboard();
             keys = app->getPressedKeys();
             if (keys.count(Qt::Key_Escape)) {
                 canvas->hideCanvas();
@@ -27,6 +26,7 @@ void keyHandlerFunction(App *app, Canvas *canvas) {
                 cout << "Ending simulation ... " << endl;
             }
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(16));
     }
 }
 
@@ -48,14 +48,16 @@ void simHandlerFunction(App *app, Canvas *canvas, DVD_PARAMS *dvd_params) {
             }
 
             while (app->getActiveLayout() == "simulation") {
+                t2 = chrono::steady_clock::now();
                 dt = std::chrono::duration<double>(chrono::duration_cast<chrono::milliseconds>(t2 - t1)).count();
                 dvd->updatePos(dt);
                 dvd->updateVel(dvd->checkCollisions());
                 t1 = chrono::steady_clock::now();
-                canvas->clear(false);
+                canvas->clear();
                 canvas->drawImage(dvd->getImage(),dvd->getX(),dvd->getY());
-                canvas->update();
-                t2 = chrono::steady_clock::now();
+                canvas->drawText(to_string(dt), 255, 0, 0,1000,1000);QMetaObject::invokeMethod(canvas, "renderFrame",
+                    Qt::QueuedConnection,
+                    Q_ARG(QPixmap, *canvas->getCanvas()));
             }
         }
     }
@@ -66,6 +68,8 @@ int main(int argc, char *argv[]) {
 
     int screen_width = QApplication::primaryScreen()->size().width();
     int screen_height = QApplication::primaryScreen()->size().height();
+
+    vector<QObject*> objects;
 
     DVD_PARAMS dvd_params;
     dvd_params.image = QPixmap("../dvd.png");
@@ -81,6 +85,8 @@ int main(int argc, char *argv[]) {
         app.setActiveLayout("statsLayout");
     });
 
+    objects.push_back(statsAction);
+
     QAction *mainMenuAction = new QAction();
     mainMenuAction->setText("Main Menu");
     QObject::connect(mainMenuAction, &QAction::triggered,[&]() {
@@ -88,34 +94,56 @@ int main(int argc, char *argv[]) {
         app.setActiveLayout("mainLayout");
     });
 
+    objects.push_back(mainMenuAction);
+
     QMenuBar *bar = new QMenuBar();
     bar->addAction(mainMenuAction);
     bar->addAction(statsAction);
 
+    objects.push_back(bar);
+
     Canvas *canvas = new Canvas(screen_width,screen_height, true);
     canvas->fill(0,0,0);
+
+    objects.push_back(canvas);
 
     QDoubleSpinBox *xVelSpinBox = new QDoubleSpinBox;
     QLabel *xVelLabel = new QLabel;
     QDoubleSpinBox *yVelSpinBox = new QDoubleSpinBox;
     QLabel *yVelLabel = new QLabel;
 
+    objects.push_back(xVelSpinBox);
+    objects.push_back(yVelSpinBox);
+    objects.push_back(xVelLabel);
+    objects.push_back(yVelLabel);
+
     xVelLabel->setText("Logo X Axis Velocity:");
     yVelLabel->setText("Logo Y Axis Velocity:");
 
-    xVelSpinBox->setValue(1.0);
-    yVelSpinBox->setValue(1.0);
+    xVelSpinBox->setValue(10.0);
+    yVelSpinBox->setValue(10.0);
 
-    xVelSpinBox->setSingleStep(0.1);
-    yVelSpinBox->setSingleStep(0.1);
+    xVelSpinBox->setSingleStep(1);
+    yVelSpinBox->setSingleStep(1);
 
     QSpinBox *xPosSpinBox = new QSpinBox;
     QLabel *xPosLabel = new QLabel;
     QSpinBox *yPosSpinBox = new QSpinBox;
     QLabel *yPosLabel = new QLabel;
 
+    objects.push_back(xPosSpinBox);
+    objects.push_back(yPosSpinBox);
+    objects.push_back(xPosLabel);
+    objects.push_back(yPosLabel);
+
     xPosLabel->setText("Logo X Start Position:");
     yPosLabel->setText("Logo Y Start Position:");
+
+    xPosSpinBox->setMaximum(screen_width-dvd_params.image.width());
+    yPosSpinBox->setMaximum(screen_height-dvd_params.image.height());
+
+    xPosSpinBox->setMinimum(0);
+    yPosSpinBox->setMinimum(0);
 
     xPosSpinBox->setValue(1);
     yPosSpinBox->setValue(1);
@@ -127,18 +155,28 @@ int main(int argc, char *argv[]) {
     saveCheckbox->setChecked(true);
     saveCheckbox->setText("Save stats to .csv ?");
 
+    objects.push_back(saveCheckbox);
 
     QLabel *simNameLabel = new QLabel;
     simNameLabel->setText("Simulation Name:");
 
+    objects.push_back(simNameLabel);
+
     QLineEdit *simNameEdit = new QLineEdit;
     simNameEdit->setPlaceholderText("SIMULATION-NAME");
+
+    objects.push_back(simNameEdit);
 
     QLabel *dvdTypeLabel = new QLabel;
     dvdTypeLabel->setText("Set DVD type:");
 
+    objects.push_back(dvdTypeLabel);
+
     QComboBox *dvdTypeComboBox = new QComboBox;
     dvdTypeComboBox->setFixedHeight(25);
+
+    objects.push_back(dvdTypeComboBox);
+
     dvdTypeComboBox->addItem("0 - Standard DVD",0);
     dvdTypeComboBox->addItem("1 - Side Scroller DVD",1);
     dvdTypeComboBox->addItem("2 - Climber DVD",2);
@@ -147,14 +185,22 @@ int main(int argc, char *argv[]) {
     padding->setText(" ");
     padding->setFixedHeight(5);
 
+    objects.push_back(padding);
+
     QPushButton *runButton = new QPushButton();
     runButton->setText("Run Simulation");
+
+    objects.push_back(runButton);
 
     QPushButton *saveButton = new QPushButton();
     saveButton->setText("Save Simulation Config");
 
+    objects.push_back(saveButton);
+
     QPushButton *loadButton = new QPushButton();
     loadButton->setText("Load Simulation Config");
+
+    objects.push_back(loadButton);
 
     QObject::connect(saveButton,&QPushButton::clicked,[&]() {
         ofstream output("../"+simNameEdit->text().toStdString()+".csv");
@@ -201,6 +247,7 @@ int main(int argc, char *argv[]) {
         cout << "You clicked the run simulation button..." << endl;
         app.setActiveLayout("simulation");
         canvas->showCanvas();
+        app.getMainWindow()->grabKeyboard();
         dvd_params.x = xPosSpinBox->value();
         dvd_params.y = yPosSpinBox->value();
         dvd_params.xVel = xVelSpinBox->value();
