@@ -66,27 +66,42 @@ vector<bool> DVD::checkCollisions(int horizontalPadding, int verticalPadding) {
      *  2 - Bottom Wall
      *  3 - Left Wall
      *
-     * Corner Indexes : 
+     * Corner Indexes :
+     *  0 - Top Left
+     *  1 - Top Right
+     *  2 - Bottom Right
+     *  3 - Bottom Left
      */
     vector<bool> wallHits = {false,false};
+    vector<int> sides = {0,0};
     if (_x >= _screen_width-_image.width()+horizontalPadding) {
         wallHits[0] = true;
-        StatsTracker.logWallHit(1);
-    }
-    if (_x <= 0-horizontalPadding) {
+        _stats->logWallHit(1);
+        sides[0] = 1;
+    } else if (_x <= 0-horizontalPadding) {
         wallHits[0] = true;
-        StatsTracker.logWallHit(3);
+        _stats->logWallHit(3);
+        sides[0] = -1;
     }
     if (_y >= _screen_height-_image.height()+verticalPadding) {
         wallHits[1] = true;
-        StatsTracker.logWallHit(0);
-    }
-    if (_y <= 0-verticalPadding) {
+        _stats->logWallHit(0);
+        sides[1] = 1;
+    } else if (_y <= 0-verticalPadding) {
         wallHits[1] = true;
-        StatsTracker.logWallHit(2);
+        _stats->logWallHit(2);
+        sides[1] = -1;
     }
     if (wallHits[0] && wallHits[1]) {
-        StatsTracker.logCornerHit();
+        if (sides[0] == 1 && sides[1] == 1) {
+            _stats->logCornerHit(2);
+        } else if (sides[0] == -1 && sides[1] == 1) {
+            _stats->logCornerHit(3);
+        } else if (sides[0] == 1 && sides[1] == -1) {
+            _stats->logCornerHit(1);
+        } else if (sides[0] == -1 && sides[1] == -1) {
+            _stats->logCornerHit(0);
+        }
     }
     return wallHits;
 }
