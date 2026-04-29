@@ -46,11 +46,13 @@ public:
     int getX() const;
     int getY() const;
 
+    int getWidth() const;
+
     void updatePos(double dt);
     void updateVel(std::vector<bool> wallHits);
 
-    std::vector<bool> checkCollisions();
-    virtual void collisionEffect() = 0;
+    std::vector<bool> checkCollisions(int horizontalPadding, int verticalPadding);
+    virtual void collisionEffect(std::vector<bool> wallHits) = 0;
 };
 
 

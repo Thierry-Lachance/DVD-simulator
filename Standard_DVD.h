@@ -9,7 +9,7 @@
 class Standard_DVD : public DVD {
 public:
     Standard_DVD(DVD_PARAMS dvd_params, StatsTracker *stats) : DVD(dvd_params,stats) {};
-    void collisionEffect() override;
+    void collisionEffect(std::vector<bool> wallHits) override;
 };
 
 

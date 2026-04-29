@@ -31,6 +31,10 @@ int DVD::getY() const {
     return _y;
 }
 
+int DVD::getWidth() const {
+    return _width;
+}
+
 void DVD::updatePos(double dt) {
     _x += floor(_xVel * dt * 1/dt);
     _y += floor(_yVel * dt * 1/dt);
@@ -55,21 +59,15 @@ void DVD::updateVel(std::vector<bool> wallHits) {
     }
 }
 
-vector<bool> DVD::checkCollisions() {
+vector<bool> DVD::checkCollisions(int horizontalPadding, int verticalPadding) {
     vector<bool> wallHits = {false,false};
-    bool collision = false;
-    if (_x >= _screen_width-_image.width() || _x <= 0) {
+    if (_x >= _screen_width-_image.width()+horizontalPadding || _x <= 0-horizontalPadding) {
         wallHits[0] = true;
-        collision = true;
         // TODO : STATS TRACKER ADD WALL HIT
     }
-    if (_y >= _screen_height-_image.height() || _y <= 0) {
+    if (_y >= _screen_height-_image.height()+verticalPadding || _y <= 0-verticalPadding) {
         wallHits[1] = true;
-        collision = true;
         // TODO : STATS TRACKER ADD WALL HIT
-    }
-    if (collision) {
-        collisionEffect();
     }
     return wallHits;
 }

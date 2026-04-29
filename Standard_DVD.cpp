@@ -4,5 +4,6 @@
 
 #include "Standard_DVD.h"
 
-void Standard_DVD::collisionEffect() {
+using namespace std;
+void Standard_DVD::collisionEffect(vector<bool> wallHits) {
 }

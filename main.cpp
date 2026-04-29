@@ -8,8 +8,10 @@
 
 #include "App.h"
 #include "Canvas.h"
+#include "ClimberDVD.h"
 #include "CustomWindow.h"
 #include "DVD.h"
+#include "SideScrollerDVD.h"
 #include "Standard_DVD.h"
 
 using namespace std;
@@ -40,9 +42,17 @@ void simHandlerFunction(App *app, Canvas *canvas, DVD_PARAMS *dvd_params) {
 
             DVD *dvd;
             Standard_DVD Std_DVD = Standard_DVD(*dvd_params, &stats);
+            SideScrollerDVD SideScroll_DVD = SideScrollerDVD(*dvd_params, &stats);
+            ClimberDVD Climb_DVD = ClimberDVD(*dvd_params, &stats);
+
+            vector<bool> wallHits;
 
             if (dvd_params->DVDType == 0) {
                 dvd = &Std_DVD;
+            } else if (dvd_params->DVDType == 1) {
+                dvd = &SideScroll_DVD;
+            } else if (dvd_params->DVDType == 2) {
+                dvd = &Climb_DVD;
             } else {
                 dvd = &Std_DVD;
             }
@@ -51,7 +61,15 @@ void simHandlerFunction(App *app, Canvas *canvas, DVD_PARAMS *dvd_params) {
                 t2 = chrono::steady_clock::now();
                 dt = std::chrono::duration<double>(chrono::duration_cast<chrono::milliseconds>(t2 - t1)).count();
                 dvd->updatePos(dt);
-                dvd->updateVel(dvd->checkCollisions());
+                if (dvd_params->DVDType == 1) {
+                    wallHits = dvd->checkCollisions(dvd->getWidth(),0);
+                } else {
+                    wallHits = dvd->checkCollisions(0,0);
+                }
+                dvd->updateVel(wallHits);
+                if (wallHits[0] || wallHits[1]) {
+                    dvd->collisionEffect(wallHits);
+                }
                 t1 = chrono::steady_clock::now();
                 canvas->clear();
                 canvas->drawImage(dvd->getImage(),dvd->getX(),dvd->getY());
