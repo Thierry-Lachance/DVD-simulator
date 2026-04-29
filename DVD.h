@@ -8,9 +8,26 @@
 
 #include "StatsTracker.h"
 
+struct DVD_PARAMS {
+    std::string simulationName;
+    int screen_width;
+    int screen_height;
+    QPixmap image;
+    int x;
+    int y;
+    double xVel;
+    double yVel;
+    /* DVDTypes :
+     * 0 - Standard
+     * 1 - Side Scroller DVD
+     * 2 - Climber DVD
+    */
+    int DVDType = 0;
+    bool saveCSV;
+};
 
 class DVD {
-private:
+protected:
     QPixmap _image;
     int _width;
     int _height;
@@ -22,9 +39,18 @@ private:
     int _y;
     StatsTracker *_stats;
 public:
-    DVD(QPixmap image, double xVel, double yVel, int x, int y, int screen_width, int screen_height, StatsTracker *stats);
+    DVD(DVD_PARAMS dvd_params, StatsTracker *stats);
+
     QPixmap getImage() const;
-    virtual void cornerHit() = 0;
+
+    int getX() const;
+    int getY() const;
+
+    void updatePos(double dt);
+    void updateVel(std::vector<bool> wallHits);
+
+    std::vector<bool> checkCollisions();
+    virtual void collisionEffect() = 0;
 };
 
 

@@ -5,7 +5,6 @@
 #include <chrono>
 #include <fstream>
 #include <string>
-#include <unistd.h>
 
 #include "App.h"
 #include "Canvas.h"
@@ -14,22 +13,6 @@
 #include "Standard_DVD.h"
 
 using namespace std;
-
-struct DVD_PARAMS {
-    string simulationName;
-    int screen_width;
-    int screen_height;
-    QPixmap image;
-    vector<int> pos;
-    vector<double> vel;
-    /* DVDTypes :
-     * 0 - Standard
-     * 1 - Side Scroller DVD
-     * 2 - Climber DVD
-    */
-    int DVDType;
-    bool saveCSV;
-};
 
 void keyHandlerFunction(App *app, Canvas *canvas) {
     std::set<int> keys;
@@ -54,22 +37,23 @@ void simHandlerFunction(App *app, Canvas *canvas, DVD_PARAMS *dvd_params) {
             auto t2 = chrono::steady_clock::now();
             double dt;
             StatsTracker stats;
+
+            DVD *dvd;
+            Standard_DVD Std_DVD = Standard_DVD(*dvd_params, &stats);
+
             if (dvd_params->DVDType == 0) {
-                Standard_DVD dvd(dvd_params->image.copy(), dvd_params->vel.at(0), dvd_params->vel.at(1), dvd_params->pos.at(0),
-                                 dvd_params->pos.at(1), dvd_params->screen_width, dvd_params->screen_height, &stats);
-            } else if (dvd_params->DVDType == 1) {
-                // TODO: IMPLEMENT SIDESCROLLER DVD
-                Standard_DVD dvd(dvd_params->image.copy(), dvd_params->vel.at(0), dvd_params->vel.at(1), dvd_params->pos.at(0),
-                                 dvd_params->pos.at(1), dvd_params->screen_width, dvd_params->screen_height, &stats);
-            } else if (dvd_params->DVDType == 2) {
-                // TODO: IMPLEMENT CLIMBER DVD
-                Standard_DVD dvd(dvd_params->image.copy(), dvd_params->vel.at(0), dvd_params->vel.at(1), dvd_params->pos.at(0),
-                                 dvd_params->pos.at(1), dvd_params->screen_width, dvd_params->screen_height, &stats);
+                dvd = &Std_DVD;
+            } else {
+                dvd = &Std_DVD;
             }
+
             while (app->getActiveLayout() == "simulation") {
                 dt = std::chrono::duration<double>(chrono::duration_cast<chrono::milliseconds>(t2 - t1)).count();
+                dvd->updatePos(dt);
+                dvd->updateVel(dvd->checkCollisions());
                 t1 = chrono::steady_clock::now();
                 canvas->clear(false);
+                canvas->drawImage(dvd->getImage(),dvd->getX(),dvd->getY());
                 canvas->update();
                 t2 = chrono::steady_clock::now();
             }
@@ -84,17 +68,11 @@ int main(int argc, char *argv[]) {
     int screen_height = QApplication::primaryScreen()->size().height();
 
     DVD_PARAMS dvd_params;
-    //dvd_params.image = QPixmap("../dvd-image.png");
+    dvd_params.image = QPixmap("../dvd.png");
     dvd_params.screen_height = screen_height;
     dvd_params.screen_width = screen_width;
 
     App app("DVD-SIMULATOR",600,500,&a);
-
-    app.addLayout("mainLayout");
-    app.addLayout("statsLayout");
-    app.addLayout("simulation", {screen_width,screen_height});
-    app.setLayoutFullscreen("statsLayout",true);
-    app.setLayoutFullscreen("simulation",true);
 
     QAction *statsAction = new QAction();
     statsAction->setText("Stats");
@@ -113,9 +91,6 @@ int main(int argc, char *argv[]) {
     QMenuBar *bar = new QMenuBar();
     bar->addAction(mainMenuAction);
     bar->addAction(statsAction);
-
-    app.setLayoutMenuBar("mainLayout",bar);
-    app.setLayoutMenuBar("statsLayout",bar);
 
     Canvas *canvas = new Canvas(screen_width,screen_height, true);
     canvas->fill(0,0,0);
@@ -182,18 +157,11 @@ int main(int argc, char *argv[]) {
     loadButton->setText("Load Simulation Config");
 
     QObject::connect(saveButton,&QPushButton::clicked,[&]() {
-        dvd_params.pos.push_back(xPosSpinBox->value());
-        dvd_params.pos.push_back(yPosSpinBox->value());
-        dvd_params.vel.push_back(xVelSpinBox->value());
-        dvd_params.vel.push_back(yVelSpinBox->value());
-        dvd_params.saveCSV = saveCheckbox->isChecked();
-        dvd_params.simulationName = simNameEdit->text().toStdString();
-        dvd_params.DVDType = dvdTypeComboBox->currentData().toInt();
-        ofstream output("../"+dvd_params.simulationName+".csv");
+        ofstream output("../"+simNameEdit->text().toStdString()+".csv");
         if (output.is_open()) {
-            output << dvd_params.saveCSV << ";" << dvd_params.DVDType << "\n";
-            output << dvd_params.pos.at(0) << ";" << dvd_params.pos.at(1) << "\n";
-            output << dvd_params.vel.at(0) << ";" << dvd_params.vel.at(1) << "\n";
+            output << saveCheckbox->isChecked() << ";" << dvdTypeComboBox->currentData().toInt() << "\n";
+            output << xPosSpinBox->value() << ";" << yPosSpinBox->value() << "\n";
+            output << xVelSpinBox->value() << ";" << yVelSpinBox->value() << "\n";
             output.close();
         } else {
             cout << "An error happened while saving the simulation config..." << endl;
@@ -223,6 +191,7 @@ int main(int argc, char *argv[]) {
                 }
                 lidx++;
             }
+            input.close();
         } else {
             cout << "An error happened while loading the simulation config..." << endl;
         }
@@ -232,14 +201,23 @@ int main(int argc, char *argv[]) {
         cout << "You clicked the run simulation button..." << endl;
         app.setActiveLayout("simulation");
         canvas->showCanvas();
-        dvd_params.pos.push_back(xPosSpinBox->value());
-        dvd_params.pos.push_back(yPosSpinBox->value());
-        dvd_params.vel.push_back(xVelSpinBox->value());
-        dvd_params.vel.push_back(yVelSpinBox->value());
+        dvd_params.x = xPosSpinBox->value();
+        dvd_params.y = yPosSpinBox->value();
+        dvd_params.xVel = xVelSpinBox->value();
+        dvd_params.yVel = yVelSpinBox->value();
         dvd_params.saveCSV = saveCheckbox->isChecked();
         dvd_params.simulationName = simNameEdit->text().toStdString();
-        dvd_params.DVDType = dvdTypeComboBox->currentData().toInt();
+        dvd_params.DVDType = dvdTypeComboBox->currentIndex();
     });
+
+    app.addLayout("mainLayout");
+    app.addLayout("statsLayout");
+    app.addLayout("simulation", {screen_width,screen_height});
+    app.setLayoutFullscreen("statsLayout",true);
+    app.setLayoutFullscreen("simulation",true);
+
+    app.setLayoutMenuBar("mainLayout",bar);
+    app.setLayoutMenuBar("statsLayout",bar);
 
     app.addWidget("padding",padding);
     app.addWidget("dvdTypeLabel",dvdTypeLabel);

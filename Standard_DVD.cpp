@@ -4,5 +4,5 @@
 
 #include "Standard_DVD.h"
 
-void Standard_DVD::cornerHit() {
+void Standard_DVD::collisionEffect() {
 }

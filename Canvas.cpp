@@ -58,8 +58,15 @@ void Canvas::fill(int r, int g, int b, int a) {
     _canvas->fill(QColor(r,g,b,a));
 }
 
+void Canvas::drawImage(QPixmap image, int x, int y) {
+    QPainter *painter = new QPainter(_canvas);
+    painter->drawPixmap(x,y,image);
+    painter->end();
+}
+
 void Canvas::drawText(std::string text, int r, int g, int b , int x , int y) {
     QPainter *painter = new QPainter(_canvas);
+    painter->setBrush(QColor(r,g,b));
     painter->drawText(x,y,text.data());
     painter->end();
 }

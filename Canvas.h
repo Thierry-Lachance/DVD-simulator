@@ -28,6 +28,8 @@ public:
     void fill(int r, int g, int b);
     void fill(int r, int g, int b, int a);
 
+    void drawImage(QPixmap image, int x, int y);
+
     void drawText(std::string text, int r, int g, int b, int x, int y);
 };
 
