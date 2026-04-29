@@ -32,16 +32,26 @@ int DVD::getY() const {
 }
 
 void DVD::updatePos(double dt) {
-    _x += (int)(_xVel * dt * 1000);
-    _y += (int)(_yVel * dt * 1000);
+    _x += floor(_xVel * dt * 1/dt);
+    _y += floor(_yVel * dt * 1/dt);
 }
 
 void DVD::updateVel(std::vector<bool> wallHits) {
     if (wallHits[0]) {
         _xVel *= -1;
+        if (_x <= 0) {
+            _x = 0;
+        } else {
+            _x = _screen_width - _width;
+        }
     }
     if (wallHits[1]) {
         _yVel *= -1;
+        if (_y <= 0) {
+            _y = 0;
+        } else {
+            _y = _screen_height - _height;
+        }
     }
 }
 

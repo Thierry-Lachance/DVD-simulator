@@ -55,7 +55,7 @@ void simHandlerFunction(App *app, Canvas *canvas, DVD_PARAMS *dvd_params) {
                 t1 = chrono::steady_clock::now();
                 canvas->clear();
                 canvas->drawImage(dvd->getImage(),dvd->getX(),dvd->getY());
-                canvas->drawText(to_string(dt), 255, 0, 0,1000,1000);QMetaObject::invokeMethod(canvas, "renderFrame",
+                canvas->drawText("FRAME/MS: " + to_string(1/dt), 255, 0, 0,0,15);QMetaObject::invokeMethod(canvas, "renderFrame",
                     Qt::QueuedConnection,
                     Q_ARG(QPixmap, *canvas->getCanvas()));
             }
@@ -120,8 +120,8 @@ int main(int argc, char *argv[]) {
     xVelLabel->setText("Logo X Axis Velocity:");
     yVelLabel->setText("Logo Y Axis Velocity:");
 
-    xVelSpinBox->setValue(10.0);
-    yVelSpinBox->setValue(10.0);
+    xVelSpinBox->setValue(1.0);
+    yVelSpinBox->setValue(1.0);
 
     xVelSpinBox->setSingleStep(1);
     yVelSpinBox->setSingleStep(1);
@@ -244,10 +244,6 @@ int main(int argc, char *argv[]) {
     });
 
     QObject::connect(runButton,&QPushButton::clicked,[&]() {
-        cout << "You clicked the run simulation button..." << endl;
-        app.setActiveLayout("simulation");
-        canvas->showCanvas();
-        app.getMainWindow()->grabKeyboard();
         dvd_params.x = xPosSpinBox->value();
         dvd_params.y = yPosSpinBox->value();
         dvd_params.xVel = xVelSpinBox->value();
@@ -255,6 +251,10 @@ int main(int argc, char *argv[]) {
         dvd_params.saveCSV = saveCheckbox->isChecked();
         dvd_params.simulationName = simNameEdit->text().toStdString();
         dvd_params.DVDType = dvdTypeComboBox->currentIndex();
+        cout << "You clicked the run simulation button..." << endl;
+        app.setActiveLayout("simulation");
+        canvas->showCanvas();
+        app.getMainWindow()->grabKeyboard();
     });
 
     app.addLayout("mainLayout");
