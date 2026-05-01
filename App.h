@@ -18,7 +18,7 @@ class App {
 private:
     QApplication *_app;
     CustomWindow *_mainWindow;
-    QVBoxLayout *_layout;
+    QGridLayout *_layout;
     std::string _appName;
     int _appWidth;
     int _appHeight;
@@ -30,27 +30,27 @@ private:
     std::map<std::string, bool> _layoutsFullscreen;
     int _exitStatus;
 public:
-    App(std::string appName, int appWidth, int appHeight, QApplication *app);
+    App(const std::string &appName, int appWidth, int appHeight, QApplication *app);
 
-    QWidget *widget(std::string widgetName);
+    QWidget *widget(const std::string &widgetName) const;
 
-    void show();
-    void hide();
+    void show() const;
+    void hide() const;
 
-    int getExitStatus();
-    CustomWindow *getMainWindow();
+    int getExitStatus() const;
+    CustomWindow *getMainWindow() const;
     std::string getActiveLayout();
-    std::set<int> getPressedKeys();
+    std::set<int> getPressedKeys() const;
 
-    void addLayout(std::string layoutName);
-    void addLayout(std::string layoutName, std::vector<int> layoutSize);
+    void addLayout(const std::string &layoutName);
+    void addLayout(const std::string &layoutName, std::vector<int> layoutSize);
     void addWidget(std::string widgetName, QWidget *widget);
-    void addWidgetToLayout(std::string widgetName, std::string layoutName);
+    void addWidgetToLayout(const std::string &widgetName, const std::string &layoutName);
 
-    void setLayoutMenuBar(std::string layoutName, QMenuBar *bar);
-    void setActiveLayout(std::string layoutName);
-    void setAppName(std::string appName);
-    void setLayoutFullscreen(std::string layoutName, bool isFullscreen);
+    void setLayoutMenuBar(const std::string &layoutName, QMenuBar *bar);
+    void setActiveLayout(const std::string &layoutName);
+    void setAppName(const std::string &appName);
+    void setLayoutFullscreen(const std::string &layoutName, bool isFullscreen);
 
     void clearLayout();
 

@@ -13,19 +13,35 @@
 
 using namespace std;
 
-App::App(string appName, int appWidth, int appHeight, QApplication *app) {
+App::App(const string &appName, int appWidth, int appHeight, QApplication *app) {
     _appName = appName;
     _appWidth = appWidth;
     _appHeight = appHeight;
     _app = app;
-    _layout = new QVBoxLayout();
+    _layout = new QGridLayout();
     _mainWindow = new CustomWindow();
     _mainWindow->setLayout(_layout);
     _mainWindow->setWindowTitle(appName.c_str());
     _mainWindow->resize(appWidth, appHeight);
 }
 
-CustomWindow *App::getMainWindow() {
+QWidget * App::widget(const string &widgetName) const {
+    return _widgets.at(widgetName);
+}
+
+void App::show() const {
+    _mainWindow->show();
+}
+
+void App::hide() const {
+    _mainWindow->hide();
+}
+
+int App::getExitStatus() const {
+    return _exitStatus;
+}
+
+CustomWindow *App::getMainWindow() const {
     return _mainWindow;
 }
 
@@ -33,49 +49,39 @@ std::string App::getActiveLayout() {
     return _activeLayout;
 }
 
-std::set<int> App::getPressedKeys() {
+std::set<int> App::getPressedKeys() const {
     return _mainWindow->getKeysPressed();
 }
 
-QWidget * App::widget(string widgetName) {
-    return _widgets.at(widgetName);
-}
-
-void App::show() {
-    _mainWindow->show();
-}
-
-void App::hide() {
-    _mainWindow->hide();
-}
-
-int App::getExitStatus() {
-    return _exitStatus;
-}
-
-void App::setAppName(string appName) {
-    _appName = appName;
-}
-
-void App::setLayoutFullscreen(std::string layoutName, bool isFullscreen) {
-    _layoutsFullscreen[layoutName] = isFullscreen;
-}
-
-void App::addLayout(string layoutName) {
+void App::addLayout(const string &layoutName) {
     vector<string> widgetVector;
     _layoutsWidgets[layoutName] = widgetVector;
     _layoutsSize[layoutName] = {_appWidth,_appHeight};
     _layoutsFullscreen[layoutName] = false;
 }
 
-void App::addLayout(std::string layoutName, vector<int> layoutSize) {
+void App::addLayout(const std::string &layoutName, vector<int> layoutSize) {
     vector<string> vector;
     _layoutsWidgets[layoutName] = vector;
     _layoutsSize[layoutName] = layoutSize;
     _layoutsFullscreen[layoutName] = false;
 }
 
-void App::setActiveLayout(string layoutName) {
+void App::addWidget(std::string widgetName, QWidget *widget) {
+    if (widget) {
+        _widgets.insert({widgetName,widget});
+    }
+}
+
+auto App::addWidgetToLayout(const string &widgetName, const string &layoutName) -> void {
+    _layoutsWidgets[layoutName].push_back(widgetName);
+}
+
+void App::setLayoutMenuBar(const string &layoutName, QMenuBar *bar) {
+    _layoutsBars[layoutName] = bar;
+}
+
+auto App::setActiveLayout(const string &layoutName) -> void {
     clearLayout();
     if (!_layoutsFullscreen[layoutName]) {
         _mainWindow->resize(_layoutsSize[layoutName][0],_layoutsSize[layoutName][1]);
@@ -93,18 +99,12 @@ void App::setActiveLayout(string layoutName) {
     _layout->update();
 }
 
-void App::addWidget(std::string widgetName, QWidget *widget) {
-    if (widget) {
-        _widgets.insert({widgetName,widget});
-    }
+void App::setAppName(const string &appName) {
+    _appName = appName;
 }
 
-void App::addWidgetToLayout(string widgetName, string layoutName) {
-    _layoutsWidgets[layoutName].push_back(widgetName);
-}
-
-void App::setLayoutMenuBar(std::string layoutName, QMenuBar *bar) {
-    _layoutsBars[layoutName] = bar;
+void App::setLayoutFullscreen(const std::string &layoutName, bool isFullscreen) {
+    _layoutsFullscreen[layoutName] = isFullscreen;
 }
 
 void App::clearLayout() {

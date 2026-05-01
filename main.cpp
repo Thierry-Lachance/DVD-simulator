@@ -37,8 +37,10 @@ void simHandlerFunction(App *app, Canvas *canvas, DVD_PARAMS *dvd_params) {
         if (app->getActiveLayout() == "simulation") {
             auto t1 = chrono::steady_clock::now();
             auto t2 = chrono::steady_clock::now();
+            auto last = chrono::steady_clock::now();
             double dt;
-            StatsTracker stats;
+
+            StatsTracker stats(1,{dvd_params->x,dvd_params->y});
 
             DVD *dvd;
             Standard_DVD Std_DVD = Standard_DVD(*dvd_params, &stats);
@@ -58,8 +60,9 @@ void simHandlerFunction(App *app, Canvas *canvas, DVD_PARAMS *dvd_params) {
             }
 
             while (app->getActiveLayout() == "simulation") {
+                dt = std::chrono::duration<double>(chrono::duration_cast<chrono::milliseconds>(t1 - t2)).count();
                 t2 = chrono::steady_clock::now();
-                dt = std::chrono::duration<double>(chrono::duration_cast<chrono::milliseconds>(t2 - t1)).count();
+
                 dvd->updatePos(dt);
                 if (dvd_params->DVDType == 1) {
                     wallHits = dvd->checkCollisions(dvd->getWidth(),0);
@@ -70,14 +73,24 @@ void simHandlerFunction(App *app, Canvas *canvas, DVD_PARAMS *dvd_params) {
                 if (wallHits[0] || wallHits[1]) {
                     dvd->collisionEffect(wallHits);
                 }
-                t1 = chrono::steady_clock::now();
+
                 canvas->clear();
                 canvas->drawImage(dvd->getImage(),dvd->getX(),dvd->getY());
-                canvas->drawText("FRAME/MS: " + to_string(1/dt), 255, 0, 0,0,15);QMetaObject::invokeMethod(canvas, "renderFrame",
-                    Qt::QueuedConnection,
+                canvas->drawText("FRAME/MS: " + to_string(1/dt), 255, 0, 0,0,15);
+                QMetaObject::invokeMethod(canvas, "renderFrame",
+                    Qt::QueuedConnection,Q_ARG(QPixmap, *canvas->getCanvas()));
 
+                if (dvd_params->saveCSV) {
+                    if (std::chrono::duration<double>(chrono::duration_cast<chrono::seconds>(chrono::steady_clock::now() - last)).count() >= stats.getDt()) {
+                        last = chrono::steady_clock::now();
+                        stats.update({dvd->getX(),dvd->getY()});
+                    }
+                }
 
-                    Q_ARG(QPixmap, *canvas->getCanvas()));
+                t1 = chrono::steady_clock::now();
+            }
+            if (dvd_params->saveCSV) {
+                stats.saveCSV(dvd_params->simulationName+"-stats");
             }
         }
     }
@@ -89,8 +102,6 @@ int main(int argc, char *argv[]) {
     int screen_width = QApplication::primaryScreen()->size().width();
     int screen_height = QApplication::primaryScreen()->size().height();
 
-    vector<QObject*> objects;
-
     DVD_PARAMS dvd_params;
     dvd_params.image = QPixmap("../dvd.png");
     dvd_params.screen_height = screen_height;
@@ -98,14 +109,13 @@ int main(int argc, char *argv[]) {
 
     App app("DVD-SIMULATOR",600,500,&a);
 
+    // Top Menu Bar Objects //
     QAction *statsAction = new QAction();
     statsAction->setText("Stats");
     QObject::connect(statsAction, &QAction::triggered,[&]() {
         cout << "Switiching to stats page" << endl;
         app.setActiveLayout("statsLayout");
     });
-
-    objects.push_back(statsAction);
 
     QAction *mainMenuAction = new QAction();
     mainMenuAction->setText("Main Menu");
@@ -114,28 +124,19 @@ int main(int argc, char *argv[]) {
         app.setActiveLayout("mainLayout");
     });
 
-    objects.push_back(mainMenuAction);
-
     QMenuBar *bar = new QMenuBar();
     bar->addAction(mainMenuAction);
     bar->addAction(statsAction);
 
-    objects.push_back(bar);
-
     Canvas *canvas = new Canvas(screen_width,screen_height, true);
     canvas->fill(0,0,0);
 
-    objects.push_back(canvas);
+    // Main Menu Objects //
 
     QDoubleSpinBox *xVelSpinBox = new QDoubleSpinBox;
     QLabel *xVelLabel = new QLabel;
     QDoubleSpinBox *yVelSpinBox = new QDoubleSpinBox;
     QLabel *yVelLabel = new QLabel;
-
-    objects.push_back(xVelSpinBox);
-    objects.push_back(yVelSpinBox);
-    objects.push_back(xVelLabel);
-    objects.push_back(yVelLabel);
 
     xVelLabel->setText("Logo X Axis Velocity:");
     yVelLabel->setText("Logo Y Axis Velocity:");
@@ -150,11 +151,6 @@ int main(int argc, char *argv[]) {
     QLabel *xPosLabel = new QLabel;
     QSpinBox *yPosSpinBox = new QSpinBox;
     QLabel *yPosLabel = new QLabel;
-
-    objects.push_back(xPosSpinBox);
-    objects.push_back(yPosSpinBox);
-    objects.push_back(xPosLabel);
-    objects.push_back(yPosLabel);
 
     xPosLabel->setText("Logo X Start Position:");
     yPosLabel->setText("Logo Y Start Position:");
@@ -175,27 +171,17 @@ int main(int argc, char *argv[]) {
     saveCheckbox->setChecked(true);
     saveCheckbox->setText("Save stats to .csv ?");
 
-    objects.push_back(saveCheckbox);
-
     QLabel *simNameLabel = new QLabel;
     simNameLabel->setText("Simulation Name:");
-
-    objects.push_back(simNameLabel);
 
     QLineEdit *simNameEdit = new QLineEdit;
     simNameEdit->setPlaceholderText("SIMULATION-NAME");
 
-    objects.push_back(simNameEdit);
-
     QLabel *dvdTypeLabel = new QLabel;
     dvdTypeLabel->setText("Set DVD type:");
 
-    objects.push_back(dvdTypeLabel);
-
     QComboBox *dvdTypeComboBox = new QComboBox;
     dvdTypeComboBox->setFixedHeight(25);
-
-    objects.push_back(dvdTypeComboBox);
 
     dvdTypeComboBox->addItem("0 - Standard DVD",0);
     dvdTypeComboBox->addItem("1 - Side Scroller DVD",1);
@@ -205,22 +191,14 @@ int main(int argc, char *argv[]) {
     padding->setText(" ");
     padding->setFixedHeight(5);
 
-    objects.push_back(padding);
-
     QPushButton *runButton = new QPushButton();
     runButton->setText("Run Simulation");
-
-    objects.push_back(runButton);
 
     QPushButton *saveButton = new QPushButton();
     saveButton->setText("Save Simulation Config");
 
-    objects.push_back(saveButton);
-
     QPushButton *loadButton = new QPushButton();
     loadButton->setText("Load Simulation Config");
-
-    objects.push_back(loadButton);
 
     QObject::connect(saveButton,&QPushButton::clicked,[&]() {
         ofstream output("../"+simNameEdit->text().toStdString()+".csv");
@@ -276,6 +254,12 @@ int main(int argc, char *argv[]) {
         canvas->showCanvas();
         app.getMainWindow()->grabKeyboard();
     });
+
+    // Stats Menu Objects //
+
+    QPieSeries *wallHitsPieGraph = new QPieSeries;
+
+    QPieSeries *cornerHitsPieGraph = new QPieSeries;
 
     app.addLayout("mainLayout");
     app.addLayout("statsLayout");
