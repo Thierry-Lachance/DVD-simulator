@@ -75,6 +75,8 @@ void simHandlerFunction(App *app, Canvas *canvas, DVD_PARAMS *dvd_params) {
                 canvas->drawImage(dvd->getImage(),dvd->getX(),dvd->getY());
                 canvas->drawText("FRAME/MS: " + to_string(1/dt), 255, 0, 0,0,15);QMetaObject::invokeMethod(canvas, "renderFrame",
                     Qt::QueuedConnection,
+
+
                     Q_ARG(QPixmap, *canvas->getCanvas()));
             }
         }

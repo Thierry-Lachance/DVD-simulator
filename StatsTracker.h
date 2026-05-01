@@ -9,8 +9,8 @@
 
 class StatsTracker {
     private:
-        int wallHit[4] = {};
-        int cornerHit[4] = {};
+        int _wallHit[4] = {};
+        int _cornerHit[4] = {};
     public:
         StatsTracker();
         void logWallHit(int wallNumber);

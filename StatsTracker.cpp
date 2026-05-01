@@ -8,21 +8,21 @@ StatsTracker::StatsTracker(){
 }
 
 void StatsTracker::logWallHit(int wallNumber){
-    wallHit[wallNumber]++;
+    _wallHit[wallNumber]++;
 }
 
 int StatsTracker::getTotalNumberOfHit() const {
-    return wallHit[0] + wallHit[1] + wallHit[2] + wallHit[3];
+    return _wallHit[0] + _wallHit[1] + _wallHit[2] + _wallHit[3];
 }
 
 int StatsTracker::getNumberOfHitForWall(int wallNumber) const {
-    return wallHit[wallNumber];
+    return _wallHit[wallNumber];
 }
 
 void StatsTracker::logCornerHit(int cornerNumber){
-    cornerHit[cornerNumber]++;
+    _cornerHit[cornerNumber]++;
 }
 
 int StatsTracker::getNumberOfHitForCorner(int cornerNumber) const {
-    return cornerHit[cornerNumber];
+    return _cornerHit[cornerNumber];
 }
