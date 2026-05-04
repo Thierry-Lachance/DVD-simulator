@@ -81,7 +81,7 @@ void simHandlerFunction(App *app, Canvas *canvas, DVD_PARAMS *dvd_params) {
                     Qt::QueuedConnection,Q_ARG(QPixmap, *canvas->getCanvas()));
 
                 if (dvd_params->saveCSV) {
-                    if (std::chrono::duration<double>(chrono::duration_cast<chrono::seconds>(chrono::steady_clock::now() - last)).count() >= stats.getDt()) {
+                    if (std::chrono::duration<double>(chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - last)).count() >= stats.getDt()) {
                         last = chrono::steady_clock::now();
                         stats.update({dvd->getX(),dvd->getY()});
                     }
@@ -269,39 +269,6 @@ int main(int argc, char *argv[]) {
     QLabel *totalTimeLabel = new QLabel;
     totalTimeLabel->setText("Aproximate simulation time: <N/A>");
 
-    QObject::connect(statsButton,&QPushButton::clicked,[&]() {
-        double dt;
-        int totalTimeSteps;
-        int totalWallHits;
-        int totalCornerHits;
-        string file = QFileDialog::getOpenFileName(app.getMainWindow(), "Load File", QApplication::applicationDirPath(),"CSV Files (*.csv)").toStdString();
-        ifstream input(file);
-        if (input.is_open()) {
-            string line;
-            int idx = 0;
-            while (getline(input,line)) {
-                if (idx == 0) {
-
-                } else if (idx == 1) {
-
-                } else if (idx == 2) {
-
-                } else if (idx == 3) {
-
-                } else if (idx == 4) {
-
-                } else if (idx == 5) {
-
-                } else if (idx == 6) {
-
-                }
-                idx++;
-            }
-        } else {
-            cout << "An error happened while loading the simulation statistics..." << endl;
-        }
-    });
-
     QPieSeries *wallHitsPie = new QPieSeries;
     wallHitsPie->append("None", 100);
     QChart *wallChart = new QChart;
@@ -317,6 +284,78 @@ int main(int argc, char *argv[]) {
     cornerChart->setTheme(QChart::ChartThemeDark);
     QChartView *cornerView = new QChartView;
     cornerView->setChart(cornerChart);
+
+    QObject::connect(statsButton,&QPushButton::clicked,[&]() {
+        double dt;
+        int totalTimeSteps;
+        int totalWallHits;
+        int totalCornerHits;
+        vector<vector<int>> wallHitsOverTime;
+        vector<vector<int>> cornerHitsOverTime;
+        vector<vector<int>> posOverTime;
+        string file = QFileDialog::getOpenFileName(app.getMainWindow(), "Load File", QApplication::applicationDirPath(),"CSV Files (*.csv)").toStdString();
+        ifstream input(file);
+        if (input.is_open()) {
+            string line;
+            int idx = 0;
+            while (getline(input,line)) {
+                if (idx == 0) {
+                    dt = atof(line.substr(0,line.find(';')).c_str());
+                    dtLabel->setText("Simulation Dt: ");
+                    dtLabel->setText(dtLabel->text().append(to_string(dt)));
+                    line.replace(0,line.find(';')+1,"");
+                    totalTimeSteps = atoi(line.c_str());
+                    timeStepsLabel->setText("Total time steps: ");
+                    timeStepsLabel->setText(timeStepsLabel->text().append(to_string(totalTimeSteps)));
+                    totalTimeLabel->setText("Aproximate simulation time: ");
+                    totalTimeLabel->setText(totalTimeLabel->text().append( to_string(totalTimeSteps*dt).data()));
+                } else if (idx == 1) {
+                    totalWallHits = atoi(line.substr(0,line.find(';')).c_str());
+                    line.replace(0,line.find(';')+1,"");
+                    totalCornerHits = atoi(line.c_str());
+                } else if (idx == 2) {
+                    wallHitsPie->clear();
+                    wallHitsPie->setLabelsVisible(true);
+                    QPieSlice *slice;
+                    slice = wallHitsPie->append("Top", atoi(line.substr(0,line.find(";")).c_str()));
+                    slice->setLabel(QString("%1 : %2").arg(slice->label()).arg(slice->value()));
+                    line.replace(0,line.find(';')+1,"");
+                    slice = wallHitsPie->append("Left", atoi(line.substr(0,line.find(";")).c_str()));
+                    slice->setLabel(QString("%1 : %2").arg(slice->label()).arg(slice->value()));
+                    line.replace(0,line.find(';')+1,"");
+                    slice = wallHitsPie->append("Bottom", atoi(line.substr(0,line.find(";")).c_str()));
+                    slice->setLabel(QString("%1 : %2").arg(slice->label()).arg(slice->value()));
+                    line.replace(0,line.find(';')+1,"");
+                    slice = wallHitsPie->append("Right", atoi(line.substr(0,line.find(";")).c_str()));
+                    slice->setLabel(QString("%1 : %2").arg(slice->label()).arg(slice->value()));
+                } else if (idx == 3) {
+                    cornerHitsPie->clear();
+                    cornerHitsPie->setLabelsVisible(true);
+                    QPieSlice *slice;
+                    slice = cornerHitsPie->append("Top Left", atoi(line.substr(0,line.find(";")).c_str()));
+                    slice->setLabel(QString("%1 : %2").arg(slice->label()).arg(slice->value()));
+                    line.replace(0,line.find(';')+1,"");
+                    slice = cornerHitsPie->append("Top Right", atoi(line.substr(0,line.find(";")).c_str()));
+                    slice->setLabel(QString("%1 : %2").arg(slice->label()).arg(slice->value()));
+                    line.replace(0,line.find(';')+1,"");
+                    slice = cornerHitsPie->append("Bottom Right", atoi(line.substr(0,line.find(";")).c_str()));
+                    slice->setLabel(QString("%1 : %2").arg(slice->label()).arg(slice->value()));
+                    line.replace(0,line.find(';')+1,"");
+                    slice = cornerHitsPie->append("Bottom Left", atoi(line.substr(0,line.find(";")).c_str()));
+                    slice->setLabel(QString("%1 : %2").arg(slice->label()).arg(slice->value()));
+                } else if (idx == 4) {
+
+                } else if (idx == 5) {
+
+                } else if (idx == 6) {
+
+                }
+                idx++;
+            }
+        } else {
+            cout << "An error happened while loading the simulation statistics..." << endl;
+        }
+    });
 
     // App configuration //
 
