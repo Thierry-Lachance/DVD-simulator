@@ -24,7 +24,6 @@ private:
     int _appHeight;
     std::string _activeLayout;
     std::map<std::string, std::vector<std::string>> _layoutsWidgets;
-    std::map<std::string, std::map<std::string,bool>> _layoutWidgetHasPos;
     std::map<std::string, std::map<std::string, std::vector<int>>> _layoutWidgetPos;
     std::map<std::string, QMenuBar*> _layoutsBars;
     std::map<std::string, QWidget*> _widgets;

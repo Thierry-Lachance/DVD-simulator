@@ -75,11 +75,11 @@ void App::addWidget(std::string widgetName, QWidget *widget) {
 
 auto App::addWidgetToLayout(const string &widgetName, const string &layoutName) -> void {
     _layoutsWidgets[layoutName].push_back(widgetName);
-    _layoutWidgetHasPos[layoutName][widgetName] = false;
+    _layoutWidgetPos[layoutName][widgetName] = {-1,-1};
 }
 
 void App::addWidgetToLayout(const std::string &widgetName, const std::string &layoutName, int row, int collunm) {
-    _layoutWidgetHasPos[layoutName][widgetName] = true;
+    _layoutsWidgets[layoutName].push_back(widgetName);
     _layoutWidgetPos[layoutName][widgetName] = {row,collunm};
 }
 
@@ -98,13 +98,15 @@ auto App::setActiveLayout(const string &layoutName) -> void {
         _mainWindow->showFullScreen();
     }
     _layout->setMenuBar(_layoutsBars[layoutName]);
+    int idx = 0;
     for (const std::string& widgetName: _layoutsWidgets[layoutName]) {
-        if (_layoutWidgetHasPos[layoutName][widgetName]) {
-            vector<int> pos = _layoutWidgetPos[layoutName][widgetName];
+        vector<int> pos = _layoutWidgetPos[layoutName][widgetName];
+        if (pos[0] != -1) {
             _layout->addWidget(_widgets[widgetName],pos[0],pos[1]);
         } else {
-            _layout->addWidget(_widgets[widgetName]);
+            _layout->addWidget(_widgets[widgetName],idx,0);
         }
+        idx++;
     }
     _activeLayout = layoutName;
     _layout->update();
