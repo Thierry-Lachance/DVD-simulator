@@ -78,9 +78,9 @@ auto App::addWidgetToLayout(const string &widgetName, const string &layoutName) 
     _layoutWidgetPos[layoutName][widgetName] = {-1,-1};
 }
 
-void App::addWidgetToLayout(const std::string &widgetName, const std::string &layoutName, int row, int collunm) {
+void App::addWidgetToLayout(const std::string &widgetName, const std::string &layoutName, int row, int collunm, int rowspan, int collunmspan) {
     _layoutsWidgets[layoutName].push_back(widgetName);
-    _layoutWidgetPos[layoutName][widgetName] = {row,collunm};
+    _layoutWidgetPos[layoutName][widgetName] = {row,collunm,rowspan,collunmspan};
 }
 
 void App::setLayoutMenuBar(const string &layoutName, QMenuBar *bar) {
@@ -102,7 +102,7 @@ auto App::setActiveLayout(const string &layoutName) -> void {
     for (const std::string& widgetName: _layoutsWidgets[layoutName]) {
         vector<int> pos = _layoutWidgetPos[layoutName][widgetName];
         if (pos[0] != -1) {
-            _layout->addWidget(_widgets[widgetName],pos[0],pos[1]);
+            _layout->addWidget(_widgets[widgetName],pos[0],pos[1], pos[2], pos[3]);
         } else {
             _layout->addWidget(_widgets[widgetName],idx,0);
         }

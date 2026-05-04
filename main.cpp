@@ -306,6 +306,7 @@ int main(int argc, char *argv[]) {
     wallHitsPie->append("None", 100);
     QChart *wallChart = new QChart;
     wallChart->addSeries(wallHitsPie);
+    wallChart->setTheme(QChart::ChartThemeDark);
     QChartView *wallView = new QChartView;
     wallView->setChart(wallChart);
 
@@ -313,6 +314,7 @@ int main(int argc, char *argv[]) {
     cornerHitsPie->append("None",100);
     QChart *cornerChart = new QChart;
     cornerChart->addSeries(cornerHitsPie);
+    cornerChart->setTheme(QChart::ChartThemeDark);
     QChartView *cornerView = new QChartView;
     cornerView->setChart(cornerChart);
 
@@ -336,12 +338,12 @@ int main(int argc, char *argv[]) {
     app.addWidget("wallView", wallView);
     app.addWidget("cornerView", cornerView);
 
-    app.addWidgetToLayout("statsButton","statsLayout",0,0);
-    app.addWidgetToLayout("dtLabel","statsLayout",1,0);
-    app.addWidgetToLayout("timeStepsLabel","statsLayout",1,1);
-    app.addWidgetToLayout("totalTimeLabel","statsLayout",1,2);
-    app.addWidgetToLayout("wallView", "statsLayout",2,0);
-    app.addWidgetToLayout("cornerView", "statsLayout",3,0);
+    app.addWidgetToLayout("statsButton","statsLayout",0,0,1,3);
+    app.addWidgetToLayout("dtLabel","statsLayout",1,0,1,1);
+    app.addWidgetToLayout("timeStepsLabel","statsLayout",1,1,1,1);
+    app.addWidgetToLayout("totalTimeLabel","statsLayout",1,2,1,1);
+    app.addWidgetToLayout("wallView", "statsLayout",2,0,1,3);
+    app.addWidgetToLayout("cornerView", "statsLayout",3,0,1,3);
 
     // Main Menu Widgets //
 

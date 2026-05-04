@@ -47,7 +47,7 @@ public:
     void addLayout(const std::string &layoutName, std::vector<int> layoutSize);
     void addWidget(std::string widgetName, QWidget *widget);
     void addWidgetToLayout(const std::string &widgetName, const std::string &layoutName);
-    void addWidgetToLayout(const std::string &widgetName, const std::string &layoutName, int row, int collunm);
+    void addWidgetToLayout(const std::string &widgetName, const std::string &layoutName, int row, int collunm, int rowspan, int collunmspan);
 
     void setLayoutMenuBar(const std::string &layoutName, QMenuBar *bar);
     void setActiveLayout(const std::string &layoutName);
