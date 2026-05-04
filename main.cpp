@@ -273,7 +273,8 @@ int main(int argc, char *argv[]) {
     wallHitsPie->append("None", 100);
     QChart *wallChart = new QChart;
     wallChart->addSeries(wallHitsPie);
-    wallChart->setTheme(QChart::ChartThemeDark);
+    wallChart->setTheme(QChart::ChartThemeBlueCerulean);
+    wallChart->setTitle("Nombre de collision pour chaque mur");
     QChartView *wallView = new QChartView;
     wallView->setChart(wallChart);
 
@@ -281,15 +282,35 @@ int main(int argc, char *argv[]) {
     cornerHitsPie->append("None",100);
     QChart *cornerChart = new QChart;
     cornerChart->addSeries(cornerHitsPie);
-    cornerChart->setTheme(QChart::ChartThemeDark);
+    cornerChart->setTheme(QChart::ChartThemeBlueCerulean);
+    cornerChart->setTitle("Nombre de collision pour chaque coin");
     QChartView *cornerView = new QChartView;
     cornerView->setChart(cornerChart);
+
+    QLineSeries* wallHitsTimeSeries = new QLineSeries();
+    QChart *wallHitsTimeChart = new QChart;
+    wallHitsTimeChart->addSeries(wallHitsTimeSeries);
+    wallHitsTimeChart->setTheme(QChart::ChartThemeBlueCerulean);
+    QChartView *wallHitsTimeView = new QChartView;
+    wallHitsTimeView->setChart(wallHitsTimeChart);
+
+    QLineSeries* cornerHitsTimeSeries = new QLineSeries();
+    QChart *cornerHitsTimeChart = new QChart;
+    cornerHitsTimeChart->addSeries(cornerHitsTimeSeries);
+    cornerHitsTimeChart->setTheme(QChart::ChartThemeBlueCerulean);
+    QChartView *cornerHitsTimeView = new QChartView;
+    cornerHitsTimeView->setChart(cornerHitsTimeChart);
+
+    QLineSeries* posSeries = new QLineSeries();
+    QChart *posChart = new QChart;
+    posChart->addSeries(posSeries);
+    posChart->setTheme(QChart::ChartThemeBlueCerulean);
+    QChartView *posView = new QChartView;
+    posView->setChart(posChart);
 
     QObject::connect(statsButton,&QPushButton::clicked,[&]() {
         double dt;
         int totalTimeSteps;
-        int totalWallHits;
-        int totalCornerHits;
         vector<vector<int>> wallHitsOverTime;
         vector<vector<int>> cornerHitsOverTime;
         vector<vector<int>> posOverTime;
@@ -309,10 +330,6 @@ int main(int argc, char *argv[]) {
                     timeStepsLabel->setText(timeStepsLabel->text().append(to_string(totalTimeSteps)));
                     totalTimeLabel->setText("Aproximate simulation time: ");
                     totalTimeLabel->setText(totalTimeLabel->text().append( to_string(totalTimeSteps*dt).data()));
-                } else if (idx == 1) {
-                    totalWallHits = atoi(line.substr(0,line.find(';')).c_str());
-                    line.replace(0,line.find(';')+1,"");
-                    totalCornerHits = atoi(line.c_str());
                 } else if (idx == 2) {
                     wallHitsPie->clear();
                     wallHitsPie->setLabelsVisible(true);
@@ -344,11 +361,64 @@ int main(int argc, char *argv[]) {
                     slice = cornerHitsPie->append("Bottom Left", atoi(line.substr(0,line.find(";")).c_str()));
                     slice->setLabel(QString("%1 : %2").arg(slice->label()).arg(slice->value()));
                 } else if (idx == 4) {
-
+                    wallHitsTimeSeries->clear();
+                    QList<QPointF> wall0;
+                    QList<QPointF> wall1;
+                    QList<QPointF> wall2;
+                    QList<QPointF> wall3;
+                    int timeIdx = 0;
+                    line.replace(0,line.find(';')+1,"");
+                    while (count(line.begin(), line.end(),';') > 0) {
+                        wall0.append(QPointF(timeIdx*dt,atoi(line.substr(0,line.find(" ")).c_str())));
+                        line.replace(0,line.find(' ')+1,"");
+                        wall1.append(QPointF(timeIdx*dt,atoi(line.substr(0,line.find(" ")).c_str())));
+                        line.replace(0,line.find(' ')+1,"");
+                        wall2.append(QPointF(timeIdx*dt,atoi(line.substr(0,line.find(" ")).c_str())));
+                        line.replace(0,line.find(' ')+1,"");
+                        wall3.append(QPointF(timeIdx*dt,atoi(line.substr(0,line.find(" ")).c_str())));
+                        line.replace(0,line.find(' ')+1,"");
+                        line.replace(0,line.find(';')+1,"");
+                        timeIdx++;
+                    }
+                    wallHitsTimeSeries->append(wall0);
+                    wallHitsTimeSeries->append(wall1);
+                    wallHitsTimeSeries->append(wall2);
+                    wallHitsTimeSeries->append(wall3);
                 } else if (idx == 5) {
-
+                    cornerHitsTimeSeries->clear();
+                    QList<QPointF> corner0;
+                    QList<QPointF> corner1;
+                    QList<QPointF> corner2;
+                    QList<QPointF> corner3;
+                    int timeIdx = 0;
+                    line.replace(0,line.find(';')+1,"");
+                    while (count(line.begin(), line.end(),';') > 0) {
+                        corner0.append(QPointF(timeIdx*dt,atoi(line.substr(0,line.find(" ")).c_str())));
+                        line.replace(0,line.find(' ')+1,"");
+                        corner1.append(QPointF(timeIdx*dt,atoi(line.substr(0,line.find(" ")).c_str())));
+                        line.replace(0,line.find(' ')+1,"");
+                        corner2.append(QPointF(timeIdx*dt,atoi(line.substr(0,line.find(" ")).c_str())));
+                        line.replace(0,line.find(' ')+1,"");
+                        corner3.append(QPointF(timeIdx*dt,atoi(line.substr(0,line.find(" ")).c_str())));
+                        line.replace(0,line.find(' ')+1,"");
+                        line.replace(0,line.find(';')+1,"");
+                        timeIdx++;
+                    }
+                    cornerHitsTimeSeries->append(corner0);
+                    cornerHitsTimeSeries->append(corner1);
+                    cornerHitsTimeSeries->append(corner2);
+                    cornerHitsTimeSeries->append(corner3);
                 } else if (idx == 6) {
-
+                    posSeries->clear();
+                    line.replace(0,line.find(';')+1,"");
+                    while (count(line.begin(), line.end(),';') > 0) {
+                        int x = atoi(line.substr(0,line.find(" ")).c_str());
+                        line.replace(0,line.find(' ')+1,"");
+                        int y = atoi(line.substr(0,line.find(" ")).c_str());
+                        posSeries->append(QPointF(x,y));
+                        line.replace(0,line.find(' ')+1,"");
+                        line.replace(0,line.find(';')+1,"");
+                    }
                 }
                 idx++;
             }
@@ -375,14 +445,20 @@ int main(int argc, char *argv[]) {
     app.addWidget("timeStepsLabel",timeStepsLabel);
     app.addWidget("totalTimeLabel",totalTimeLabel);
     app.addWidget("wallView", wallView);
+    app.addWidget("wallTimeView",wallHitsTimeView);
     app.addWidget("cornerView", cornerView);
+    app.addWidget("cornerTimeView",cornerHitsTimeView);
+    app.addWidget("posView", posView);
 
-    app.addWidgetToLayout("statsButton","statsLayout",0,0,1,3);
+    app.addWidgetToLayout("statsButton","statsLayout",0,0,1,4);
     app.addWidgetToLayout("dtLabel","statsLayout",1,0,1,1);
     app.addWidgetToLayout("timeStepsLabel","statsLayout",1,1,1,1);
     app.addWidgetToLayout("totalTimeLabel","statsLayout",1,2,1,1);
-    app.addWidgetToLayout("wallView", "statsLayout",2,0,1,3);
-    app.addWidgetToLayout("cornerView", "statsLayout",3,0,1,3);
+    app.addWidgetToLayout("wallView", "statsLayout",2,0,1,2);
+    app.addWidgetToLayout("cornerView", "statsLayout",2,2,1,2);
+    app.addWidgetToLayout("wallTimeView", "statsLayout",3,0,1,2);
+    app.addWidgetToLayout("cornerTimeView", "statsLayout",3,2,1,2);
+    app.addWidgetToLayout("posView","statsLayout",4,0,1,4);
 
     // Main Menu Widgets //
 
