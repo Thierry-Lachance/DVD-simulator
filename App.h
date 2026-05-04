@@ -24,6 +24,8 @@ private:
     int _appHeight;
     std::string _activeLayout;
     std::map<std::string, std::vector<std::string>> _layoutsWidgets;
+    std::map<std::string, std::map<std::string,bool>> _layoutWidgetHasPos;
+    std::map<std::string, std::map<std::string, std::vector<int>>> _layoutWidgetPos;
     std::map<std::string, QMenuBar*> _layoutsBars;
     std::map<std::string, QWidget*> _widgets;
     std::map<std::string, std::vector<int>> _layoutsSize;
@@ -46,6 +48,7 @@ public:
     void addLayout(const std::string &layoutName, std::vector<int> layoutSize);
     void addWidget(std::string widgetName, QWidget *widget);
     void addWidgetToLayout(const std::string &widgetName, const std::string &layoutName);
+    void addWidgetToLayout(const std::string &widgetName, const std::string &layoutName, int row, int collunm);
 
     void setLayoutMenuBar(const std::string &layoutName, QMenuBar *bar);
     void setActiveLayout(const std::string &layoutName);

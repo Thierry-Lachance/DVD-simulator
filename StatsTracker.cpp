@@ -83,6 +83,7 @@ void StatsTracker::saveCSV(const std::string& fileName) {
             }
         }
         output << "\n";
+        output.close();
     } else {
         cout << "An error happened while saving stats..." << endl;
     }

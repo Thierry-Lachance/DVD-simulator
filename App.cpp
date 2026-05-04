@@ -75,6 +75,12 @@ void App::addWidget(std::string widgetName, QWidget *widget) {
 
 auto App::addWidgetToLayout(const string &widgetName, const string &layoutName) -> void {
     _layoutsWidgets[layoutName].push_back(widgetName);
+    _layoutWidgetHasPos[layoutName][widgetName] = false;
+}
+
+void App::addWidgetToLayout(const std::string &widgetName, const std::string &layoutName, int row, int collunm) {
+    _layoutWidgetHasPos[layoutName][widgetName] = true;
+    _layoutWidgetPos[layoutName][widgetName] = {row,collunm};
 }
 
 void App::setLayoutMenuBar(const string &layoutName, QMenuBar *bar) {
@@ -93,7 +99,12 @@ auto App::setActiveLayout(const string &layoutName) -> void {
     }
     _layout->setMenuBar(_layoutsBars[layoutName]);
     for (const std::string& widgetName: _layoutsWidgets[layoutName]) {
-        _layout->addWidget(_widgets[widgetName]);
+        if (_layoutWidgetHasPos[layoutName][widgetName]) {
+            vector<int> pos = _layoutWidgetPos[layoutName][widgetName];
+            _layout->addWidget(_widgets[widgetName],pos[0],pos[1]);
+        } else {
+            _layout->addWidget(_widgets[widgetName]);
+        }
     }
     _activeLayout = layoutName;
     _layout->update();

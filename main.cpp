@@ -40,7 +40,7 @@ void simHandlerFunction(App *app, Canvas *canvas, DVD_PARAMS *dvd_params) {
             auto last = chrono::steady_clock::now();
             double dt;
 
-            StatsTracker stats(1,{dvd_params->x,dvd_params->y});
+            StatsTracker stats(0.1,{dvd_params->x,dvd_params->y});
 
             DVD *dvd;
             Standard_DVD Std_DVD = Standard_DVD(*dvd_params, &stats);
@@ -257,9 +257,57 @@ int main(int argc, char *argv[]) {
 
     // Stats Menu Objects //
 
-    QPieSeries *wallHitsPieGraph = new QPieSeries;
+    QPushButton *statsButton = new QPushButton();
+    statsButton->setText("Load Statistics");
 
-    QPieSeries *cornerHitsPieGraph = new QPieSeries;
+    QObject::connect(statsButton,&QPushButton::clicked,[&]() {
+        double dt;
+        int totalTimeSteps;
+        int totalWallHits;
+        int totalCornerHits;
+        string file = QFileDialog::getOpenFileName(app.getMainWindow(), "Load File", QApplication::applicationDirPath(),"CSV Files (*.csv)").toStdString();
+        ifstream input(file);
+        if (input.is_open()) {
+            string line;
+            int idx = 0;
+            while (getline(input,line)) {
+                if (idx == 0) {
+
+                } else if (idx == 1) {
+
+                } else if (idx == 2) {
+
+                } else if (idx == 3) {
+
+                } else if (idx == 4) {
+
+                } else if (idx == 5) {
+
+                } else if (idx == 6) {
+
+                }
+                idx++;
+            }
+        } else {
+            cout << "An error happened while loading the simulation statistics..." << endl;
+        }
+    });
+
+    QPieSeries *wallHitsPie = new QPieSeries;
+    wallHitsPie->append("None", 100);
+    QChart *wallChart = new QChart;
+    wallChart->addSeries(wallHitsPie);
+    QChartView *wallView = new QChartView;
+    wallView->setChart(wallChart);
+
+    QPieSeries *cornerHitsPie = new QPieSeries;
+    cornerHitsPie->append("None",100);
+    QChart *cornerChart = new QChart;
+    cornerChart->addSeries(cornerHitsPie);
+    QChartView *cornerView = new QChartView;
+    cornerView->setChart(cornerChart);
+
+    // App configuration //
 
     app.addLayout("mainLayout");
     app.addLayout("statsLayout");
@@ -269,6 +317,16 @@ int main(int argc, char *argv[]) {
 
     app.setLayoutMenuBar("mainLayout",bar);
     app.setLayoutMenuBar("statsLayout",bar);
+
+    // Stats Menu Widgets //
+
+    app.addWidget("wallView", wallView);
+    app.addWidget("cornerView", cornerView);
+
+    app.addWidgetToLayout("wallView", "statsLayout",0,0);
+    app.addWidgetToLayout("cornerView", "statsLayout",1,0);
+
+    // Main Menu Widgets //
 
     app.addWidget("padding",padding);
     app.addWidget("dvdTypeLabel",dvdTypeLabel);
