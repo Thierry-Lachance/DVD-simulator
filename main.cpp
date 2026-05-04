@@ -260,6 +260,15 @@ int main(int argc, char *argv[]) {
     QPushButton *statsButton = new QPushButton();
     statsButton->setText("Load Statistics");
 
+    QLabel *dtLabel = new QLabel;
+    dtLabel->setText("Simulation Dt: <N/A>");
+
+    QLabel *timeStepsLabel = new QLabel;
+    timeStepsLabel->setText("Total time steps: <N/A>");
+
+    QLabel *totalTimeLabel = new QLabel;
+    totalTimeLabel->setText("Aproximate simulation time: <N/A>");
+
     QObject::connect(statsButton,&QPushButton::clicked,[&]() {
         double dt;
         int totalTimeSteps;
@@ -320,11 +329,19 @@ int main(int argc, char *argv[]) {
 
     // Stats Menu Widgets //
 
+    app.addWidget("statsButton",statsButton);
+    app.addWidget("dtLabel",dtLabel);
+    app.addWidget("timeStepsLabel",timeStepsLabel);
+    app.addWidget("totalTimeLabel",totalTimeLabel);
     app.addWidget("wallView", wallView);
     app.addWidget("cornerView", cornerView);
 
-    app.addWidgetToLayout("wallView", "statsLayout",0,0);
-    app.addWidgetToLayout("cornerView", "statsLayout",1,0);
+    app.addWidgetToLayout("statsButton","statsLayout",0,0);
+    app.addWidgetToLayout("dtLabel","statsLayout",1,0);
+    app.addWidgetToLayout("timeStepsLabel","statsLayout",1,1);
+    app.addWidgetToLayout("totalTimeLabel","statsLayout",1,2);
+    app.addWidgetToLayout("wallView", "statsLayout",2,0);
+    app.addWidgetToLayout("cornerView", "statsLayout",3,0);
 
     // Main Menu Widgets //
 
