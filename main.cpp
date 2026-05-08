@@ -287,16 +287,30 @@ int main(int argc, char *argv[]) {
     QChartView *cornerView = new QChartView;
     cornerView->setChart(cornerChart);
 
-    QLineSeries* wallHitsTimeSeries = new QLineSeries();
+    QLineSeries* wall0TimeSeries = new QLineSeries();
+    QLineSeries* wall1TimeSeries = new QLineSeries();
+    QLineSeries* wall2TimeSeries = new QLineSeries();
+    QLineSeries* wall3TimeSeries = new QLineSeries();
     QChart *wallHitsTimeChart = new QChart;
-    wallHitsTimeChart->addSeries(wallHitsTimeSeries);
+    wallHitsTimeChart->addSeries(wall0TimeSeries);
+    wallHitsTimeChart->addSeries(wall1TimeSeries);
+    wallHitsTimeChart->addSeries(wall2TimeSeries);
+    wallHitsTimeChart->addSeries(wall3TimeSeries);
+    wallHitsTimeChart->createDefaultAxes();
     wallHitsTimeChart->setTheme(QChart::ChartThemeBlueCerulean);
     QChartView *wallHitsTimeView = new QChartView;
     wallHitsTimeView->setChart(wallHitsTimeChart);
 
-    QLineSeries* cornerHitsTimeSeries = new QLineSeries();
+    QLineSeries* corner0TimeSeries = new QLineSeries();
+    QLineSeries* corner1TimeSeries = new QLineSeries();
+    QLineSeries* corner2TimeSeries = new QLineSeries();
+    QLineSeries* corner3TimeSeries = new QLineSeries();
     QChart *cornerHitsTimeChart = new QChart;
-    cornerHitsTimeChart->addSeries(cornerHitsTimeSeries);
+    cornerHitsTimeChart->addSeries(corner0TimeSeries);
+    cornerHitsTimeChart->addSeries(corner1TimeSeries);
+    cornerHitsTimeChart->addSeries(corner2TimeSeries);
+    cornerHitsTimeChart->addSeries(corner3TimeSeries);
+    cornerHitsTimeChart->createDefaultAxes();
     cornerHitsTimeChart->setTheme(QChart::ChartThemeBlueCerulean);
     QChartView *cornerHitsTimeView = new QChartView;
     cornerHitsTimeView->setChart(cornerHitsTimeChart);
@@ -304,6 +318,9 @@ int main(int argc, char *argv[]) {
     QLineSeries* posSeries = new QLineSeries();
     QChart *posChart = new QChart;
     posChart->addSeries(posSeries);
+    posChart->createDefaultAxes();
+    posChart->axisY()->setMax(screen_height);
+    posChart->axisX()->setMax(screen_width);
     posChart->setTheme(QChart::ChartThemeBlueCerulean);
     QChartView *posView = new QChartView;
     posView->setChart(posChart);
@@ -311,6 +328,8 @@ int main(int argc, char *argv[]) {
     QObject::connect(statsButton,&QPushButton::clicked,[&]() {
         double dt;
         int totalTimeSteps;
+        int maxWallHits = 0;
+        int maxCornerHits = 0;
         vector<vector<int>> wallHitsOverTime;
         vector<vector<int>> cornerHitsOverTime;
         vector<vector<int>> posOverTime;
@@ -335,79 +354,100 @@ int main(int argc, char *argv[]) {
                     wallHitsPie->setLabelsVisible(true);
                     QPieSlice *slice;
                     slice = wallHitsPie->append("Top", atoi(line.substr(0,line.find(";")).c_str()));
+                    if (slice->value() > maxWallHits) {
+                        maxWallHits = slice->value();
+                    }
                     slice->setLabel(QString("%1 : %2").arg(slice->label()).arg(slice->value()));
+                    if (slice->value() > maxWallHits) {
+                        maxWallHits = slice->value();
+                    }
                     line.replace(0,line.find(';')+1,"");
                     slice = wallHitsPie->append("Left", atoi(line.substr(0,line.find(";")).c_str()));
+                    if (slice->value() > maxWallHits) {
+                        maxWallHits = slice->value();
+                    }
                     slice->setLabel(QString("%1 : %2").arg(slice->label()).arg(slice->value()));
                     line.replace(0,line.find(';')+1,"");
                     slice = wallHitsPie->append("Bottom", atoi(line.substr(0,line.find(";")).c_str()));
+                    if (slice->value() > maxWallHits) {
+                        maxWallHits = slice->value();
+                    }
                     slice->setLabel(QString("%1 : %2").arg(slice->label()).arg(slice->value()));
                     line.replace(0,line.find(';')+1,"");
                     slice = wallHitsPie->append("Right", atoi(line.substr(0,line.find(";")).c_str()));
+                    if (slice->value() > maxWallHits) {
+                        maxWallHits = slice->value();
+                    }
                     slice->setLabel(QString("%1 : %2").arg(slice->label()).arg(slice->value()));
                 } else if (idx == 3) {
                     cornerHitsPie->clear();
                     cornerHitsPie->setLabelsVisible(true);
                     QPieSlice *slice;
                     slice = cornerHitsPie->append("Top Left", atoi(line.substr(0,line.find(";")).c_str()));
+                    if (slice->value() > maxCornerHits) {
+                        maxCornerHits = slice->value();
+                    }
                     slice->setLabel(QString("%1 : %2").arg(slice->label()).arg(slice->value()));
                     line.replace(0,line.find(';')+1,"");
                     slice = cornerHitsPie->append("Top Right", atoi(line.substr(0,line.find(";")).c_str()));
+                    if (slice->value() > maxCornerHits) {
+                        maxCornerHits = slice->value();
+                    }
                     slice->setLabel(QString("%1 : %2").arg(slice->label()).arg(slice->value()));
                     line.replace(0,line.find(';')+1,"");
                     slice = cornerHitsPie->append("Bottom Right", atoi(line.substr(0,line.find(";")).c_str()));
+                    if (slice->value() > maxCornerHits) {
+                        maxCornerHits = slice->value();
+                    }
                     slice->setLabel(QString("%1 : %2").arg(slice->label()).arg(slice->value()));
                     line.replace(0,line.find(';')+1,"");
                     slice = cornerHitsPie->append("Bottom Left", atoi(line.substr(0,line.find(";")).c_str()));
+                    if (slice->value() > maxCornerHits) {
+                        maxCornerHits = slice->value();
+                    }
                     slice->setLabel(QString("%1 : %2").arg(slice->label()).arg(slice->value()));
                 } else if (idx == 4) {
-                    wallHitsTimeSeries->clear();
-                    QList<QPointF> wall0;
-                    QList<QPointF> wall1;
-                    QList<QPointF> wall2;
-                    QList<QPointF> wall3;
+                    wall0TimeSeries->clear();
+                    wall1TimeSeries->clear();
+                    wall2TimeSeries->clear();
+                    wall3TimeSeries->clear();
                     int timeIdx = 0;
                     line.replace(0,line.find(';')+1,"");
                     while (count(line.begin(), line.end(),';') > 0) {
-                        wall0.append(QPointF(timeIdx*dt,atoi(line.substr(0,line.find(" ")).c_str())));
+                        wall0TimeSeries->append(timeIdx*dt,atoi(line.substr(0,line.find(" ")).c_str()));
                         line.replace(0,line.find(' ')+1,"");
-                        wall1.append(QPointF(timeIdx*dt,atoi(line.substr(0,line.find(" ")).c_str())));
+                        wall1TimeSeries->append(timeIdx*dt,atoi(line.substr(0,line.find(" ")).c_str()));
                         line.replace(0,line.find(' ')+1,"");
-                        wall2.append(QPointF(timeIdx*dt,atoi(line.substr(0,line.find(" ")).c_str())));
+                        wall2TimeSeries->append(timeIdx*dt,atoi(line.substr(0,line.find(" ")).c_str()));
                         line.replace(0,line.find(' ')+1,"");
-                        wall3.append(QPointF(timeIdx*dt,atoi(line.substr(0,line.find(" ")).c_str())));
+                        wall3TimeSeries->append(timeIdx*dt,atoi(line.substr(0,line.find(" ")).c_str()));
                         line.replace(0,line.find(' ')+1,"");
                         line.replace(0,line.find(';')+1,"");
                         timeIdx++;
                     }
-                    wallHitsTimeSeries->append(wall0);
-                    wallHitsTimeSeries->append(wall1);
-                    wallHitsTimeSeries->append(wall2);
-                    wallHitsTimeSeries->append(wall3);
+                    wallHitsTimeChart->axisY()->setMax(maxWallHits);
+                    wallHitsTimeChart->axisX()->setMax(dt*totalTimeSteps);
                 } else if (idx == 5) {
-                    cornerHitsTimeSeries->clear();
-                    QList<QPointF> corner0;
-                    QList<QPointF> corner1;
-                    QList<QPointF> corner2;
-                    QList<QPointF> corner3;
+                    corner0TimeSeries->clear();
+                    corner1TimeSeries->clear();
+                    corner2TimeSeries->clear();
+                    corner3TimeSeries->clear();
                     int timeIdx = 0;
                     line.replace(0,line.find(';')+1,"");
                     while (count(line.begin(), line.end(),';') > 0) {
-                        corner0.append(QPointF(timeIdx*dt,atoi(line.substr(0,line.find(" ")).c_str())));
+                        corner0TimeSeries->append(timeIdx*dt,atoi(line.substr(0,line.find(" ")).c_str()));
                         line.replace(0,line.find(' ')+1,"");
-                        corner1.append(QPointF(timeIdx*dt,atoi(line.substr(0,line.find(" ")).c_str())));
+                        corner1TimeSeries->append(timeIdx*dt,atoi(line.substr(0,line.find(" ")).c_str()));
                         line.replace(0,line.find(' ')+1,"");
-                        corner2.append(QPointF(timeIdx*dt,atoi(line.substr(0,line.find(" ")).c_str())));
+                        corner2TimeSeries->append(timeIdx*dt,atoi(line.substr(0,line.find(" ")).c_str()));
                         line.replace(0,line.find(' ')+1,"");
-                        corner3.append(QPointF(timeIdx*dt,atoi(line.substr(0,line.find(" ")).c_str())));
+                        corner3TimeSeries->append(timeIdx*dt,atoi(line.substr(0,line.find(" ")).c_str()));
                         line.replace(0,line.find(' ')+1,"");
                         line.replace(0,line.find(';')+1,"");
                         timeIdx++;
                     }
-                    cornerHitsTimeSeries->append(corner0);
-                    cornerHitsTimeSeries->append(corner1);
-                    cornerHitsTimeSeries->append(corner2);
-                    cornerHitsTimeSeries->append(corner3);
+                    cornerHitsTimeChart->axisY()->setMax(maxCornerHits);
+                    cornerHitsTimeChart->axisX()->setMax(dt*totalTimeSteps);
                 } else if (idx == 6) {
                     posSeries->clear();
                     line.replace(0,line.find(';')+1,"");
